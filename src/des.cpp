@@ -1,3 +1,12 @@
+/*
+**
+**  Authors:
+** 
+**     Sam Milton
+**     Brian Gianforcaro (bjg1955@cs.rit.edu)
+**
+**
+*/
 
 #include "des.h"
 
