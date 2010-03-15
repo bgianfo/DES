@@ -16,5 +16,4 @@ clean:
 	rm -rf decrypt
 	rm -rf decrypt.dSYM
 	rm -rf encrypt.dSYM
-
 	rm -rf *.o
