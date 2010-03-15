@@ -11,6 +11,7 @@
 
 
 #define ROUNDS 16
+#define BKSIZE 64
 
 class des {
 
@@ -22,6 +23,10 @@ class des {
     void inv_permiate( void );
 
     void permiate( void );
+
+    void f( char* L, char* K );
+
+    void keyschedule( void );
 
   public:
 

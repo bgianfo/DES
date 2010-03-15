@@ -8,6 +8,9 @@
 **
 */
 
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
 #include "des.h"
 
 /* Shift's change depending on which round we are on */
@@ -147,8 +150,13 @@ unsigned char SP[8][4][16] = {
 
 
 des::des( char* block , char* key ) {
+
+  assert( block != NULL );
+  assert( key != NULL );
+
   this->block = block;
   this->key = key;
+
 }
 
 des::~des( ) {
@@ -156,31 +164,86 @@ des::~des( ) {
   delete this->key;
 }
 
-/*
- * Implements the main enciphering algorithm in figure 1 pg: 13 DES spec
- */
-void des::encrypt() {
-  this->permiate();
+/* 
+**  Key schedule:
+**
+**   C[0]D[0] = PC1(key)
+**   for 1 <= i <= 16
+**      C[i] = LS[i](C[i-1])
+**      D[i] = LS[i](D[i-1])
+**      K[i] = PC2(C[i]D[i])
+**
+*/
+void des::keyschedule( void ) {
 
-  this->inv_permiate();
+}
+
+/*
+**
+** Encipherment:
+**
+**   L[0]R[0] = IP(plain block)
+**   for 1 <= i <= 16
+**      L[i] = R[i-1]
+**      R[i] = L[i-1] xor f(R[i-1], K[i])
+**      cipher block = FP(R[16]L[16])
+**
+** Implements the main enciphering algorithm in figure 1 pg: 13 DES spec
+**
+*/
+void des::encrypt() {
+  permiate();
+
+  for( unsigned int i = 0; i <= ROUNDS; i++ ) {
+
+  }
+
+  inv_permiate();
   return;
 }
 
 /*
- * Scramble the plain text a little bit
- */
+** Decipherment:
+**
+**   R[16]L[16] = IP(cipher block)
+**   for 1 <= i <= 16
+**     R[i-1] = L[i]
+**     L[i-1] = R[i] xor f(L[i], K[i])
+**     plain block = FP(L[0]R[0])
+*/
+void des::decrypt() {
+
+  char L[16];
+  char R[16];
+  for( unsigned int i = 0; i <= ROUNDS; i++ ) {
+
+  }
+
+}
+
+void des::f( char* L, char* K ) {
+
+}
+
+/*
+**
+** Scramble the plain text a little bit.
+**
+*/
 void des::permiate( void ) {
-  for( int i = 0; i < 64; i++ ) {
+  for( unsigned int i = 0; i < BKSIZE; i++ ) {
     this->block[i] = this->block[ IP[i] - 1 ];
   }
   return;
 }
 
 /*
- * Inverse scramble the plain text a little bit
- */
+**
+** Inverse scramble the plain text a little bit.
+**
+*/
 void des::inv_permiate( void ) {
-  for( int i = 0; i < 64; i++ ) {
+  for( unsigned int i = 0; i < BKSIZE; i++ ) {
     this->block[i] = this->block[ IPP[i] - 1 ];
   }
   return;
