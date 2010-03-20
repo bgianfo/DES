@@ -44,9 +44,11 @@ class des {
     /* All S-Boxes  */
     static uint8_t des::SP[8][4][16];
 
-    uint32_t* block;
+    uint8_t* block;
 
-    uint32_t* key;
+    uint8_t* key;
+
+    uint8_t round;
 
     void inv_permiate( void );
 
@@ -65,7 +67,7 @@ class des {
 
   public:
 
-    des( uint32_t* block , uint32_t* key );
+    des( uint8_t* block , uint8_t* key );
 
     ~des();
 

@@ -17,12 +17,8 @@
 #include "des.hpp"
 
 /* Shift's change depending on which round we are on */
-unsigned char des::SHIFTS[ROUNDS] = {
-  1, 1, 2, 2,
-  2, 2, 2, 2,
-  1, 2, 2, 2, 
-  2, 2, 2 ,1
-};
+unsigned char des::SHIFTS[ROUNDS] = 
+{ 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2 ,1 };
 
 /* Primative functino P pg: 22 of DES spec */
 unsigned char des::P[32] = {
@@ -174,7 +170,7 @@ des::des( uint8_t* block , uint8_t * key ) {
     this->key[i] = key[i];
   }
 
-  this->rounds = 0;
+  this->round = 0;
 }
 
 des::~des( ) {
@@ -211,7 +207,7 @@ void des::keyschedule( void ) {
 */
 void des::encrypt() {
 
-  assert( rounds == 0 or rounds >= 15 );
+  assert( round == 0 or round >= 15 );
 
   permiate();
 
@@ -290,7 +286,7 @@ void des::f( char* R, char* K ) {
 */
 void des::permiate( void ) {
   assert( block != NULL );
-  assert( this->rounds == 0 );
+  assert( this->round == 0 );
 
 
   uint8_t* n_block = new uint8_t[8];
@@ -315,7 +311,7 @@ void des::permiate( void ) {
 void des::inv_permiate( void ) {
 
   assert( block != NULL );
-  assert( this->rounds >= 15 );
+  assert( this->round >= 15 );
 
   uint8_t* n_block = new uint8_t[8];
   memset( n_block, 0, 8 );

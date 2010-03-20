@@ -2,7 +2,7 @@ CXX = g++
 CFLAGS = -g -Wall -Wextra -ansi -pendantic
 LFLAGS = 
 
-default: encrypt decrypt tester
+default: encrypt decrypt tester test
 
 encrypt: encrypt.cpp
 	$(CXX) -o encrypt $(LFLAGS) $(CFLAGS) des.cpp encrypt.cpp
