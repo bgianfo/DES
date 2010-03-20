@@ -9,15 +9,23 @@
 */
 
 #include <cstdio>
+#include <cstring>
 #include <cstdlib>
 #include <cassert>
-#include "des.h"
+#include <stdint.h>
+
+#include "des.hpp"
 
 /* Shift's change depending on which round we are on */
-static unsigned char SHIFTS[ROUNDS] = {1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1};
+unsigned char des::SHIFTS[ROUNDS] = {
+  1, 1, 2, 2,
+  2, 2, 2, 2,
+  1, 2, 2, 2, 
+  2, 2, 2 ,1
+};
 
 /* Primative functino P pg: 22 of DES spec */
-static unsigned char P[32] = {
+unsigned char des::P[32] = {
   16,  7, 20, 21,
   29, 12, 28, 17,
    1, 15, 23, 26,
@@ -28,7 +36,7 @@ static unsigned char P[32] = {
   22, 11,  4, 25 
 };
 
-static unsigned char E[48] = {
+unsigned char des::E[48] = {
   32,  1,  2,  3,  4,  5, 
    4,  5,  6,  7,  8,  9, 
    8,  9, 10, 11, 12, 13, 
@@ -40,7 +48,7 @@ static unsigned char E[48] = {
 };
 
 /* Permiated choice #1 pg: 23 of DES spec */
-static unsigned char PC1[56] = {
+unsigned char des::PC1[56] = {
   57, 49, 41, 33, 25, 17,  9,
    1, 58, 50, 42, 34, 26, 18,
   10,  2, 59, 51, 43, 35, 27,
@@ -51,12 +59,12 @@ static unsigned char PC1[56] = {
   21, 13,  5, 28, 20, 12,  4
 };
 
-unsigned char PC2[56] = {
+unsigned char des::PC2[56] = {
 
 };
 
 /* IP prime pg: 14 */
-static unsigned char IP[64] = {
+unsigned char des::IP[64] = {
   58, 50, 42, 34, 26, 18, 10, 2, 
   60, 52, 44, 36, 28, 20, 12, 4, 
   62, 54, 46, 38, 30, 22, 14, 6, 
@@ -68,7 +76,7 @@ static unsigned char IP[64] = {
 };
 
 /* IP prime pg: 14 */
-static unsigned char IPP[64] = {
+unsigned char des::IPP[64] = {
   40,  8, 48, 16, 56, 24, 64, 32, 
   39,  7, 47, 15, 55, 23, 63, 31, 
   38,  6, 46, 14, 54, 22, 62, 30, 
@@ -80,7 +88,7 @@ static unsigned char IPP[64] = {
 };
 
 /* All S-Boxes  */
-unsigned char SP[8][4][16] = {
+unsigned char des::SP[8][4][16] = {
 
   /* S1 function pg: 19 of DES spec */
   {
@@ -149,14 +157,24 @@ unsigned char SP[8][4][16] = {
 };
 
 
-des::des( char* block , char* key ) {
+/**
+ * @param block, 64 bit data block made up of two 32bit int's
+ * @param key, 64 bit key made up of two 32bit int's
+ */
+des::des( uint8_t* block , uint8_t * key ) {
 
   assert( block != NULL );
   assert( key != NULL );
 
-  this->block = block;
-  this->key = key;
+  this->block = new uint8_t[8];
+  this->key = new uint8_t[8];
 
+  for ( int i = 0; i < 8; i++ ) {
+    this->block[i] = block[i];
+    this->key[i] = key[i];
+  }
+
+  this->rounds = 0;
 }
 
 des::~des( ) {
@@ -192,6 +210,9 @@ void des::keyschedule( void ) {
 **
 */
 void des::encrypt() {
+
+  assert( rounds == 0 or rounds >= 15 );
+
   permiate();
 
   for( unsigned int i = 0; i <= ROUNDS; i++ ) {
@@ -202,15 +223,46 @@ void des::encrypt() {
   return;
 }
 
-/*
-** Decipherment:
-**
-**   R[16]L[16] = IP(cipher block)
-**   for 1 <= i <= 16
-**     R[i-1] = L[i]
-**     L[i-1] = R[i] xor f(L[i], K[i])
-**     plain block = FP(L[0]R[0])
-*/
+/**
+ *
+ */
+bool des::get( uint8_t data, int bit ) {
+  int mask = 1 << bit;
+  return data & mask;
+}
+
+/**
+ * Turn a specific bit of "data" on.
+ *
+ * @data - pointer of the byte to operate on.
+ * @bit - nth bit to modify.
+ */
+
+void des::on( uint8_t* data, const int bit ) {
+  *data |= (1 << bit);
+}
+
+/**
+ * Turn a specific bit of "data" off.
+ *
+ * @data - pointer of the byte to operate on.
+ * @bit - nth bit to modify.
+ */
+
+void des::off( uint8_t* data, const int bit ) {
+  *data &= ~(1 << bit);
+}
+
+/**
+ * Decipherment:
+ *
+ *   R[16]L[16] = IP(cipher block)
+ *   for 1 <= i <= 16
+ *     R[i-1] = L[i]
+ *     L[i-1] = R[i] xor f(L[i], K[i])
+ *     plain block = FP(L[0]R[0])
+ */
+
 void des::decrypt() {
 
   char L[16];
@@ -221,7 +273,13 @@ void des::decrypt() {
 
 }
 
-void des::f( char* L, char* K ) {
+/**
+ *
+ * @param R is 32 bit chunk of block
+ * @param K is 48 bit chunk of the key.
+ *
+ */
+void des::f( char* R, char* K ) {
 
 }
 
@@ -231,9 +289,21 @@ void des::f( char* L, char* K ) {
 **
 */
 void des::permiate( void ) {
-  for( unsigned int i = 0; i < BKSIZE; i++ ) {
-    this->block[i] = this->block[ IP[i] - 1 ];
+  assert( block != NULL );
+  assert( this->rounds == 0 );
+
+
+  uint8_t* n_block = new uint8_t[8];
+  memset( n_block, 0, 8 );
+
+  for( uint8_t i = 0; i < BKSIZE; i++ ) {
+    if ( des::get( this->block[i/8], (IP[i]/8 - 1) ) ) {
+      des::on( &(n_block[i/8]), (IP[i]/8 - 1) );
+    }
   }
+
+  delete this->block;
+  this->block = n_block;
   return;
 }
 
@@ -243,6 +313,23 @@ void des::permiate( void ) {
 **
 */
 void des::inv_permiate( void ) {
+
+  assert( block != NULL );
+  assert( this->rounds >= 15 );
+
+  uint8_t* n_block = new uint8_t[8];
+  memset( n_block, 0, 8 );
+
+  for( uint8_t i = 0; i < BKSIZE; i++ ) {
+    if ( des::get( this->block[i/8], (IPP[i]/8 - 1) ) ) {
+      des::on( &(n_block[i/8]), (IPP[i]/8 - 1) );
+    }
+  }
+
+  delete this->block;
+  this->block = n_block;
+  return;
+
   for( unsigned int i = 0; i < BKSIZE; i++ ) {
     this->block[i] = this->block[ IPP[i] - 1 ];
   }
