@@ -1,5 +1,5 @@
 CXX = g++
-CFLAGS = -g -Wall -Wextra -ansi -pendantic
+CFLAGS = -g3 -Wall -Wextra -ansi -pendantic
 LFLAGS = 
 
 default: encrypt decrypt tester test

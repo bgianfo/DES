@@ -13,7 +13,7 @@
 
 #include "des.hpp"
 
-int main( int argc, char** argv ) {
+int main( int c, char** b) {
 
   char key[17] = "133457799BBCDFF1";
   char msg[17] = "0123456789ABCDEF";

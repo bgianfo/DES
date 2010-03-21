@@ -11,26 +11,33 @@
 
 #include <stdint.h>
 
+/* Convenience for unit testing */
 #ifdef UNITTEST
- #define protected public
- #define private   public
+# define protected public
+# define private   public
 #endif
 
+/* Number of rounds in cipher*/
 #define ROUNDS 16
+
+/* Initial size of block and key in bits*/
 #define BKSIZE 64
 
+/* Define which action's for the algorithm */
 enum action_t {
-  encrypt_a, 
-  decrypt_a
+  encrypt_a, decrypt_a
 };
+
+
+typedef uint8_t* block_t;
 
 class des {
 
   private:
 
-    //
-    // Constants as defined in the spec
-    //
+    /*
+    ** Constants as defined in the spec
+    */
 
     /* Number of shifts for each round */
     static uint8_t des::SHIFTS[ROUNDS];
@@ -38,65 +45,84 @@ class des {
     /* Primitive function P pg: 22 of DES spec */
     static uint8_t des::P[32];
 
+    /* Primitive function E */
     static uint8_t des::E[48];
 
     /* Permeated choice #1 pg: 23 of DES spec */
     static uint8_t des::PC1[56];
 
+    /* Permeated choice #2 pg: 23 of DES spec */
     static uint8_t des::PC2[48];
 
-    /* IP prime pg: 14 */
-    static uint8_t des::IP[64];
+    /* Initial permutation pg: 14 */
+    static uint8_t des::IP[BKSIZE];
 
-    /* IP prime pg: 14 */
-    static uint8_t des::IPP[64];
+    /* Final permutation, or IP prime pg: 14 */
+    static uint8_t des::IPP[BKSIZE];
 
-    /* All S-Boxes  */
-    static uint8_t des::SP[8][64];
+    /* All S-Boxes 1-8 */
+    static uint8_t des::SP[8][BKSIZE];
 
-    //
-    // Class state
-    //
+    /*
+    ** Class state
+    */
 
-    uint8_t* block;
+    /* Data block 64 long */
+    block_t block;
 
-    uint8_t* key;
+    /* Data key block 64 long */
+    block_t key;
 
+    /* Data key current round of cipher */
     uint8_t round;
 
+    /* All scheduled key's */
     uint8_t scheduled_keys[16][48];
 
-    uint8_t* ciphertext;
-    uint8_t* plaintext;
+    /* Encrypted cipher text */
+    block_t ciphertext;
 
-    void f( uint8_t* dest, uint8_t* R, uint8_t* K );
+    /* Decrypted plain text */
+    block_t plaintext;
 
+    /* DES Fiestal function */
+    void f( block_t dest, block_t R, block_t K );
+ 
+    /* Schedule keys for all rounds */
     void keyschedule( void );
 
-    static bool get( uint8_t data, const int bit );
-
-    static void on( uint8_t* data, const int bit );
-
-    static void off( uint8_t* data, const int bit );
- 
+    /* Main entry point to DES cipher */
     void algorithm( action_t action );
 
   public:
 
-    des( uint8_t* block , uint8_t* key );
+    /* Constructor */
+    des( block_t block , block_t key );
 
+    /* Destructor */
     ~des();
 
     void encrypt( void );
 
     void decrypt( void );
 
-    uint8_t* cipherText(void) { return this->ciphertext; }
-    uint8_t* plainText(void) { return this->plaintext; }
+    uint8_t* cipherText( void ) { return this->ciphertext; }
 
-    static void sttoblk( uint8_t* blk, char* str );
+    uint8_t* plainText( void ) { return this->plaintext; }
 
-    static void blktostr( uint8_t* blk, char* str );
+    static void sttoblk( block_t blk, char* str );
+
+    static void blktostr( block_t blk, char* str );
+
+    /* Get the nth bit of a integer */
+    static bool get( uint8_t data, const int bit );
+
+    /* Set the nth bit of a integer */
+    static void on( block_t data, const int bit );
+
+    /* Un-set the nth bit of a integer */
+    static void off( block_t data, const int bit );
+ 
 };
 
 #endif
