@@ -4,13 +4,13 @@ LFLAGS =
 
 default: encrypt decrypt tester test
 
-encrypt: encrypt.cpp
+encrypt: encrypt.cpp des.hpp des.cpp
 	$(CXX) -o encrypt $(LFLAGS) $(CFLAGS) des.cpp encrypt.cpp
 
-decrypt: decrypt.cpp
+decrypt: decrypt.cpp des.hpp des.cpp
 	$(CXX) -o decrypt $(LFLAGS) $(CFLAGS) des.cpp decrypt.cpp
 
-tester: test.cpp
+tester: test.cpp des.hpp des.cpp
 	$(CXX) -o tester $(LFLAGS) -lgtest $(CFLAGS) -DUNITTEST des.cpp test.cpp
 
 test: tester

@@ -62,6 +62,31 @@ TEST( DesBitOps, Off ) {
 
 }
 
+TEST( DESAlgo, Encrypt ) {
+
+  char key[17] = "133457799BBCDFF1";
+  char msg[17] = "0123456789ABCDEF";
+
+  uint8_t kblck[64];
+  uint8_t mblck[64];
+
+  des::sttoblk( kblck, key );
+  des::sttoblk( mblck, msg );
+
+  char dest[17] = {
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, '\0'
+  };
+
+  des cipher( mblck, kblck );
+  cipher.encrypt();
+  des::blktostr( cipher.cipherText(), dest );
+
+  char* ciphertext = "85E813540F0AB405";
+  ASSERT_TRUE( strcmp( dest, ciphertext ) == 0 );
+}
+
+
  
 int main( int argc, char **argv ) {
 

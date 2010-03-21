@@ -19,21 +19,31 @@
 #define ROUNDS 16
 #define BKSIZE 64
 
+enum action_t {
+  encrypt_a, 
+  decrypt_a
+};
+
 class des {
 
   private:
 
+    //
+    // Constants as defined in the spec
+    //
+
+    /* Number of shifts for each round */
     static uint8_t des::SHIFTS[ROUNDS];
 
-    /* Primative functino P pg: 22 of DES spec */
+    /* Primitive function P pg: 22 of DES spec */
     static uint8_t des::P[32];
 
     static uint8_t des::E[48];
 
-    /* Permiated choice #1 pg: 23 of DES spec */
+    /* Permeated choice #1 pg: 23 of DES spec */
     static uint8_t des::PC1[56];
 
-    static uint8_t des::PC2[56];
+    static uint8_t des::PC2[48];
 
     /* IP prime pg: 14 */
     static uint8_t des::IP[64];
@@ -42,7 +52,11 @@ class des {
     static uint8_t des::IPP[64];
 
     /* All S-Boxes  */
-    static uint8_t des::SP[8][4][16];
+    static uint8_t des::SP[8][64];
+
+    //
+    // Class state
+    //
 
     uint8_t* block;
 
@@ -50,20 +64,22 @@ class des {
 
     uint8_t round;
 
-    void inv_permiate( void );
+    uint8_t scheduled_keys[16][48];
 
-    void permiate( void );
+    uint8_t* ciphertext;
+    uint8_t* plaintext;
 
-    void f( char* L, char* K );
+    void f( uint8_t* dest, uint8_t* R, uint8_t* K );
 
     void keyschedule( void );
 
-    static bool get( uint8_t data, int bit );
+    static bool get( uint8_t data, const int bit );
 
     static void on( uint8_t* data, const int bit );
 
     static void off( uint8_t* data, const int bit );
  
+    void algorithm( action_t action );
 
   public:
 
@@ -71,9 +87,16 @@ class des {
 
     ~des();
 
-    void encrypt();
+    void encrypt( void );
 
     void decrypt( void );
+
+    uint8_t* cipherText(void) { return this->ciphertext; }
+    uint8_t* plainText(void) { return this->plaintext; }
+
+    static void sttoblk( uint8_t* blk, char* str );
+
+    static void blktostr( uint8_t* blk, char* str );
 };
 
 #endif
