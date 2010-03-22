@@ -1,10 +1,12 @@
 /*
+**  File: des.hpp
 **
-**  Authors: Sam Milton
-**           Brian Gianforcaro (bjg1955@cs.rit.edu)
+**  Authors: 
+** 
+**     Sam Milton        (srm2997@cs.rit.edu)
+**     Brian Gianforcaro (bjg1955@cs.rit.edu)
 **
 */
-
 
 #ifndef _DES_H_
 #define _DES_H_
@@ -29,6 +31,7 @@ enum action_t {
 };
 
 
+/* Define a block type to use */
 typedef uint8_t* block_t;
 
 class des {
@@ -43,7 +46,7 @@ class des {
     static uint8_t des::SHIFTS[ROUNDS];
 
     /* Primitive function P pg: 22 of DES spec */
-    static uint8_t des::P[32];
+    static uint8_t des::P[(BKSIZE/2)];
 
     /* Primitive function E */
     static uint8_t des::E[48];
@@ -100,7 +103,7 @@ class des {
     des( block_t block , block_t key );
 
     /* Destructor */
-    ~des();
+    ~des( void );
 
     void encrypt( void );
 
@@ -122,7 +125,7 @@ class des {
 
     /* Un-set the nth bit of a integer */
     static void off( block_t data, const int bit );
- 
+
 };
 
 #endif

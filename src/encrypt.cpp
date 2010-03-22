@@ -1,19 +1,17 @@
 /*
+**  File: encrypt.cpp
 **
 **  Authors:
 ** 
 **     Sam Milton
 **     Brian Gianforcaro (bjg1955@cs.rit.edu)
 **
-**
 */
 
 #include <cstdio>
-#include "stdint.h"
-
 #include "des.hpp"
 
-int main( int c, char** b) {
+int main( void ) {
 
   char key[17] = "133457799BBCDFF1";
   char msg[17] = "0123456789ABCDEF";
@@ -32,9 +30,11 @@ int main( int c, char** b) {
     0, 0, 0, 0, 0, 0, 0, 0, '\0'
   };
 
-  des cipher( mblck, kblck );
-  cipher.encrypt();
-  des::blktostr( cipher.cipherText(), dest );
-  printf( "CipherText: %s\n", dest );
+  for ( int i = 0; i < 1000000; i++ ) {
+    des cipher( mblck, kblck );
+    cipher.encrypt();
+    des::blktostr( cipher.cipherText(), dest );
+  }
  
+  printf( "With Key: %s\n", dest );
 }

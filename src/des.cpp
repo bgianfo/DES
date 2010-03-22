@@ -1,4 +1,6 @@
 /*
+**  File: des.cpp
+**
 **  Authors:
 ** 
 **     Sam Milton        (srm2997@cs.rit.edu)
@@ -11,6 +13,7 @@
 **     Each element in the array is considered to be a single bit, and is either 0 or 1.
 */
 
+
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -18,33 +21,88 @@
 #include <stdint.h>
 #include <algorithm>
 
-using namespace std;
-
 #include "des.hpp"
 
-/* Primitive function P pg: 22 of DES spec */
-uint8_t des::P[32] = {
-  16,  7, 20, 21,
-  29, 12, 28, 17,
-   1, 15, 23, 26,
-   5, 18, 31, 10,
-   2,  8, 24, 14,
-  32, 27,  3,  9,
-  19, 13, 30,  6,
-  22, 11,  4, 25 
-};
+using namespace std;
 
-/* Primitive function  E */
-uint8_t des::E[48] = {
-  32,  1,  2,  3,  4,  5, 
-   4,  5,  6,  7,  8,  9, 
-   8,  9, 10, 11, 12, 13, 
-  12, 13, 14, 15, 16, 17, 
-  16, 17, 18, 19, 20, 21, 
-  20, 21, 22, 23, 24, 25, 
-  24, 25, 26, 27, 28, 29, 
-  28, 29, 30, 31, 32,  1
-};
+/*
+**
+** Default Constructor 
+**
+** @param block, 64 bit data block made up of two 32bit int's
+** @param key, 64 bit key made up of two 32bit int's
+**
+*/
+
+des::des( block_t block , block_t key ) {
+
+  assert( block != NULL );
+  assert( key != NULL );
+
+  this->block = new uint8_t[BKSIZE];
+  this->key = new uint8_t[BKSIZE];
+
+  memcpy( this->block, block, BKSIZE );
+  memcpy( this->key, key, BKSIZE );
+  this->round = 0;
+
+  this->ciphertext = NULL;
+  this->plaintext  = NULL;
+}
+
+/*
+** Default Destructor 
+*/
+
+des::~des( void ) {
+
+  delete this->block;
+  delete this->key;
+
+  if ( this->ciphertext != NULL ) {
+    delete this->ciphertext;
+  }
+
+  if ( this->plaintext != NULL ) {
+    delete this->plaintext;
+  }
+}
+
+/*
+** Public API to encryption algorithm of the class.
+** 
+** Encipherment:
+**
+**   L[0]R[0] = IP(plain block)
+**   for 1 <= i <= 16
+**      L[i] = R[i-1]
+**      R[i] = L[i-1] xor f(R[i-1], K[i])
+**      cipher block = FP(R[16]L[16])
+*/
+
+void des::encrypt( void ) {
+  assert( round == 0 or round >= 15 );
+  this->ciphertext = new uint8_t[BKSIZE];
+  this->algorithm( encrypt_a );
+}
+
+/*
+** Public API to decryption algorithm of the class.
+**
+** Decipherment:
+**
+**   R[16]L[16] = IP(cipher block)
+**   for 1 <= i <= 16
+**     R[i-1] = L[i]
+**     L[i-1] = R[i] xor f(L[i], K[i])
+**     plain block = FP(L[0]R[0])
+*/
+
+void des::decrypt( void ) {
+  assert( round == 0 or round >= 15 );
+  this->plaintext = new uint8_t[BKSIZE];
+  this->algorithm( decrypt_a );
+}
 
 /* IP prime pg: 14 */
 uint8_t des::IP[BKSIZE] = {
@@ -52,10 +110,24 @@ uint8_t des::IP[BKSIZE] = {
   60, 52, 44, 36, 28, 20, 12, 4, 
   62, 54, 46, 38, 30, 22, 14, 6, 
   64, 56, 48, 40, 32, 24, 16, 8, 
+
   57, 49, 41, 33, 25, 17,  9, 1, 
   59, 51, 43, 35, 27, 19, 11, 3, 
   61, 53, 45, 37, 29, 21, 13, 5, 
   63, 55, 47, 39, 31, 23, 15, 7 
+};
+
+/* Primitive function P pg: 22 of DES spec */
+uint8_t des::P[(BKSIZE/2)] = {
+  16,  7, 20, 21,
+  29, 12, 28, 17,
+   1, 15, 23, 26,
+   5, 18, 31, 10,
+
+   2,  8, 24, 14,
+  32, 27,  3,  9,
+  19, 13, 30,  6,
+  22, 11,  4, 25 
 };
 
 /* IP prime pg: 14 */
@@ -69,6 +141,63 @@ uint8_t des::IPP[BKSIZE] = {
   34,  2, 42, 10, 50, 18, 58, 26, 
   33,  1, 41,  9, 49, 17, 57, 25
 };
+
+/*
+**
+** Implements the main enciphering algorithm in figure 1 pg: 13 DES spec
+**
+*/
+
+void des::algorithm( const action_t action ) {
+  
+  /* Schedule them key's! */
+  this->keyschedule();
+
+  uint8_t tmp[BKSIZE]; 
+
+  /* Perform the initial permutation on the input block */
+  for ( int i = 0; i < BKSIZE; i++ ) {
+    tmp[i] = this->block[ IP[i] - 1 ];
+  }
+
+  /* Split the input block */
+  block_t l = tmp;
+  block_t r = tmp + (BKSIZE/2);
+
+  for ( this->round = 0; this->round < ROUNDS; this->round++ ) {
+
+    /* store r for later */
+    uint8_t saver[(BKSIZE/2)];
+    memcpy( saver, r, BKSIZE/2 );
+   
+    /* Run the Fiestel function */
+    uint8_t fblck[32];
+    des::f( fblck, r, this->scheduled_keys[this->round] );
+
+    /* R = L ^ f(R,K) */
+    for ( int j = 0; j < 32; j++ ) {
+      r[j] =  l[j] ^ fblck[ P[j] - 1 ];
+    }
+
+    /* Swap l and r for the next round */
+    memcpy( l, saver, BKSIZE/2 );
+  }
+
+  /* TODO: Make sure this blatant misuse of how iterators works! */
+  /* Swap output before final permutation */
+  std::swap_ranges( l, l + (BKSIZE/2), r );
+
+  /*
+  ** Copy result back into destination, 
+  ** remember l and r point to separate halves of a block of size 64.
+  */
+
+  block_t out;
+  out = (action == encrypt_a) ? this->ciphertext : this->plaintext;
+  for ( int i = 0; i < BKSIZE; i++ ) { 
+      out[i] = l[ IPP[i] - 1 ];
+  }
+}
 
 /* All S-Boxes  */
 uint8_t des::SP[8][BKSIZE] = 
@@ -124,225 +253,33 @@ uint8_t des::SP[8][BKSIZE] =
   }
 };
 
+/* Primitive function  E */
+uint8_t des::E[48] = {
+  32,  1,  2,  3,  4,  5, 
+   4,  5,  6,  7,  8,  9, 
+   8,  9, 10, 11, 12, 13, 
+  12, 13, 14, 15, 16, 17, 
 
-/**
- * @param block, 64 bit data block made up of two 32bit int's
- * @param key, 64 bit key made up of two 32bit int's
- */
-des::des( block_t block , block_t key ) {
-
-  assert( block != NULL );
-  assert( key != NULL );
-
-  this->block = new uint8_t[BKSIZE];
-  this->key = new uint8_t[BKSIZE];
-
-  memcpy( this->block, block, BKSIZE );
-  memcpy( this->key, key, BKSIZE );
-  this->round = 0;
-
-  this->ciphertext = NULL;
-  this->plaintext  = NULL;
-}
-
-des::~des( ) {
-
-  delete this->block;
-  delete this->key;
-
-  if ( this->ciphertext != NULL ) {
-    delete this->ciphertext;
-  }
-
-  if ( this->plaintext != NULL ) {
-    delete this->plaintext;
-  }
-}
-
-/*
-** Permeated choice #1 pg: 23 of DES spec
-**
-** Brings a 64bit key down to 56 bits.
-*/
-
-uint8_t des::PC1[56] = {
-  57, 49, 41, 33, 25, 17,  9,
-   1, 58, 50, 42, 34, 26, 18,
-  10,  2, 59, 51, 43, 35, 27,
-  19, 11,  3, 60, 52, 44, 36,
-
-  63, 55, 47, 39, 31, 23, 15,
-   7, 62, 54, 46, 38, 30, 22,
-  14,  6, 61, 53, 45, 37, 29,
-  21, 13,  5, 28, 20, 12,  4,
+  16, 17, 18, 19, 20, 21, 
+  20, 21, 22, 23, 24, 25, 
+  24, 25, 26, 27, 28, 29, 
+  28, 29, 30, 31, 32,  1
 };
 
 /*
-** Permeated choice #2 pg: 23 of DES spec
-** Brings a 56 bit key down to 48 bits.
-*/
-uint8_t des::PC2[48] = {
-  14, 17, 11, 24,  1,  5,
-   3, 28, 15,  6, 21, 10,
-  23, 19, 12,  4, 26,  8,
-  16,  7, 27, 20, 13,  2,
-
-  41, 52, 31, 37, 47, 55,
-  30, 40, 51, 45, 33, 48,
-  44, 49, 39, 56, 34, 53,
-  46, 42, 50, 36, 29, 32,
-};
-
-/* Shift's change depending on which round we are on */
-uint8_t des::SHIFTS[ROUNDS] = 
-{ 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2 ,1 };
-
-
-/* 
-**  Key schedule:
+** DES Fiestel function
 **
-**   C[0]D[0] = PC1(key)
-**   for 1 <= i <= 16
-**      C[i] = LS[i](C[i-1])
-**      D[i] = LS[i](D[i-1])
-**      K[i] = PC2(C[i]D[i])
+** @param dest is 32 bit chunk of block
+** @param R is 48 bit chunk of block
+** @param K is 48 bit chunk of the key.
 **
-*/
-void des::keyschedule( void ) {
-
-
-  uint8_t C[28];
-  uint8_t D[28];
-
-  /* 
-   * Generate the permutation on the key 
-   *
-   * Discarding the lowest order bit of every byte.
-   */
-  for ( int i = 0; i < 28; i++ ) {
-    C[i] = this->key[ PC1[ i ] - 1 ];
-    D[i] = this->key[ PC1[ i + 28 ] - 1 ];
-  }
-
-
-  /* Generate the 16 key's we will need for each round. */
-  for ( int i = 0; i < ROUNDS; i++ ) {
-
-    /*
-     * Rotate key around once for n shifts
-     * n depends on the current round we are in.
-     */
-    for ( int j = 0; j < this->SHIFTS[i]; j++ ) {
-
-
-      uint8_t tc = C[0];
-      uint8_t td = D[0];
-      for ( int k = 0; k < 27; k++ ) { 
-        C[k] = C[k+1];
-        D[k] = D[k+1];
-      }
-      C[27] = tc;
-      D[27] = td;
-
-    }
-
-    /* Copy over this rounds key */ 
-    for ( int j = 0; j < 24; j++ ) {
-      /* Of the each 28 bit half only take 24 bits */
-      this->scheduled_keys[i][j]    =  C[ PC2[j] - 1 ];
-      this->scheduled_keys[i][j+24] =  D[ PC2[j+24] - 1 ];
-    }
-  }
-
-}
-
-/*
-**
-** Encipherment:
-**
-**   L[0]R[0] = IP(plain block)
-**   for 1 <= i <= 16
-**      L[i] = R[i-1]
-**      R[i] = L[i-1] xor f(R[i-1], K[i])
-**      cipher block = FP(R[16]L[16])
-**
-** Implements the main enciphering algorithm in figure 1 pg: 13 DES spec
-**
+** @note input size is 2 48 bits blocks output is one 32 bit block.
 */
 
-void des::algorithm( const action_t action ) {
-
-  this->keyschedule();
-
-  uint8_t tmp[BKSIZE]; 
-
-  /* Perform the initial permutation on the input block */
-  for ( int i = 0; i < BKSIZE; i++ ) {
-    tmp[i] = this->block[ IP[i] - 1 ];
-  }
-
-  /* Split the input block */
-  block_t l = tmp;
-  block_t r = tmp + 32;
-
-  for ( this->round = 0; this->round < ROUNDS; this->round++ ) {
-
-    /* store r for later */
-    uint8_t save[32];
-    memcpy( save, r, 32 );
-
-   
-    /* Run the fiestal function */
-    uint8_t fblck[32];
-    des::f( fblck, r, this->scheduled_keys[this->round] );
-
-    /* R = L ^ f(R,K) */
-    for ( int j = 0; j < 32; j++ ) {
-      r[j] =  l[j] ^ fblck[ P[j] -1 ];
-    }
-
-    /* Swap l and r for the next round */
-    memcpy( l, save, 32 );
-  }
-
-  /* Swap output before final permutation */
-
-  // TODO: Make sure this blatent misuse of iterators works!
-  std::swap_ranges( l, l+32, r );
-  
-
-
-  /*
-  ** Copy result back into destination, 
-  ** remember l and r point to separate halves of a block of size 64.
-  */
-
-  if ( action  == encrypt_a ) {
-    for ( int i = 0; i < BKSIZE; i++ ) { 
-      this->ciphertext[i] = l[ IPP[i] -1 ];
-    }
-  } else {
-
-    for ( int i = 0; i < BKSIZE; i++ ) { 
-      this->plaintext[i] = l[ IPP[i] -1 ];
-    }
-
-  }
-
-}
-
-/**
- *
- * @param dest is 32 bit chunk of block
- * @param R is 48 bit chunk of block
- * @param K is 48 bit chunk of the key.
- *
- * @note input size is 2 48 bits blocks output is one 32 bit block.
- */
 void des::f( block_t dest, block_t R, block_t K ) {
 
   /* clear dest */
-  memset( dest, 0, 32 );
+  memset( dest, 0, (BKSIZE/2) );
 
   /* Expand left side to 48 bits to match key */
   uint8_t rpk[48];
@@ -370,41 +307,113 @@ void des::f( block_t dest, block_t R, block_t K ) {
     uint8_t k = SP[j][in];
 
     t = 4*j;
-    for (int i = 0; i < 4; i++ ) {
+    for ( int i = 0; i < 4; i++ ) {
       dest[t+i] = (k >>(3-i)) & 1;
     }
   }
 }
 
-/*
-** Public API to encryption algorithm of the class.
-*/
-void des::encrypt() {
-  assert( round == 0 or round >= 15 );
-  this->ciphertext = new uint8_t[64];
-  this->algorithm( encrypt_a );
-}
 
 /*
-** Decipherment:
+** Permeated choice #1 pg: 23 of DES spec
 **
-**   R[16]L[16] = IP(cipher block)
-**   for 1 <= i <= 16
-**     R[i-1] = L[i]
-**     L[i-1] = R[i] xor f(L[i], K[i])
-**     plain block = FP(L[0]R[0])
+** Brings a 64bit key down to 56 bits.
 */
 
-void des::decrypt() {
-  assert( round == 0 or round >= 15 );
-  this->plaintext = new uint8_t[64];
-  this->algorithm( decrypt_a );
-}
+uint8_t des::PC1[56] = {
+  57, 49, 41, 33, 25, 17,  9,
+   1, 58, 50, 42, 34, 26, 18,
+  10,  2, 59, 51, 43, 35, 27,
+  19, 11,  3, 60, 52, 44, 36,
 
+  63, 55, 47, 39, 31, 23, 15,
+   7, 62, 54, 46, 38, 30, 22,
+  14,  6, 61, 53, 45, 37, 29,
+  21, 13,  5, 28, 20, 12,  4,
+};
+
+/*
+** Permeated choice #2 pg: 23 of DES spec
+** Brings a 56 bit key down to 48 bits.
+*/
+
+uint8_t des::PC2[48] = {
+  14, 17, 11, 24,  1,  5,
+   3, 28, 15,  6, 21, 10,
+  23, 19, 12,  4, 26,  8,
+  16,  7, 27, 20, 13,  2,
+
+  41, 52, 31, 37, 47, 55,
+  30, 40, 51, 45, 33, 48,
+  44, 49, 39, 56, 34, 53,
+  46, 42, 50, 36, 29, 32,
+};
+
+/* Shift's change depending on which round we are on */
+uint8_t des::SHIFTS[ROUNDS] = 
+{ 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2 ,1 };
+
+/* 
+**  Key schedule:
+**
+**   C[0]D[0] = PC1(key)
+**   for 1 <= i <= 16
+**      C[i] = LS[i](C[i-1])
+**      D[i] = LS[i](D[i-1])
+**      K[i] = PC2(C[i]D[i])
+**
+*/
+
+void des::keyschedule( void ) {
+
+  uint8_t C[28];
+  uint8_t D[28];
+
+  /* 
+  ** Generate both halves of the permutation on the key.
+  ** Discarding the lowest order bit of every byte.
+  */
+
+  for ( int i = 0; i < 28; i++ ) {
+    C[i] = this->key[ PC1[ i ] - 1 ];
+    D[i] = this->key[ PC1[ i + 28 ] - 1 ];
+  }
+
+
+  /* Generate the 16 key's we will need for each round. */
+  for ( int i = 0; i < ROUNDS; i++ ) {
+
+    /*
+    ** Rotate key around once for n shifts
+    ** n depends on the current round we are in.
+    */
+    for ( int j = 0; j < this->SHIFTS[i]; j++ ) {
+
+      uint8_t tc0 = C[0];
+      uint8_t td0 = D[0];
+      
+      for ( int k = 0; k < 27; k++ ) { 
+        C[k] = C[k+1];
+        D[k] = D[k+1];
+      }
+
+      C[27] = tc0;
+      D[27] = td0;
+    }
+
+    /* Copy over this rounds key */ 
+    for ( int j = 0; j < 24; j++ ) {
+      /* Of the each 28 bit half only take 24 bits */
+      this->scheduled_keys[i][j]    =  C[ PC2[j] - 1 ];
+      this->scheduled_keys[i][j+24] =  D[ PC2[j+24] - 1 ];
+    }
+  }
+}
 
 /*
 ** Get a specific bit of "data".
 */
+
 bool des::get( uint8_t data, const int bit ) {
   int mask = 1 << bit;
   return data & mask;
@@ -413,6 +422,7 @@ bool des::get( uint8_t data, const int bit ) {
 /*
 ** Turn a specific bit of "data" on.
 */
+
 void des::on( block_t data, const int bit ) {
   *data |= (1 << bit);
 }
@@ -420,6 +430,7 @@ void des::on( block_t data, const int bit ) {
 /*
 ** Turn a specific bit of "data" off.
 */
+
 void des::off( block_t data, const int bit ) {
   *data &= ~(1 << bit);
 }
@@ -427,6 +438,7 @@ void des::off( block_t data, const int bit ) {
 /*
 ** Convert a array of char to a DES block.
 */
+
 void des::sttoblk( block_t blk, char* str ) {
   for (int i = 0; i < 16; i++ ) {
     int j = i*8;
@@ -440,6 +452,10 @@ void des::sttoblk( block_t blk, char* str ) {
     blk[j+7] = des::get(str[i],7);
   }
 }
+
+/*
+** Convert a DES block to array of char.
+*/
 
 void des::blktostr( block_t blk, char* str ) {
   for (int i = 0; i < 16; i++ ) {

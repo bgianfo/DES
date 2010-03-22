@@ -1,5 +1,16 @@
+##########################################################
+#
+#  File: des.hpp
+#
+#  Authors: 
+# 
+#     Sam Milton        (srm2997@cs.rit.edu)
+#     Brian Gianforcaro (bjg1955@cs.rit.edu)
+#
+##########################################################
+
 CXX = g++
-CFLAGS = -g3 -Wall -Wextra -ansi -pendantic
+CFLAGS = -g3 -pg -Wall -Wextra -ansi -pendantic
 LFLAGS = 
 
 default: encrypt decrypt tester test

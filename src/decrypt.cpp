@@ -1,18 +1,16 @@
 /*
-**
+**  File: decrypt.cpp
+** 
 **  Authors:
 ** 
 **     Sam Milton
 **     Brian Gianforcaro (bjg1955@cs.rit.edu)
 **
-**
 */
 
 #include <cstdio>
+#include "des.hpp"
 
-int main( int argc, char** argv ) {
-
-  argc = 0;
-  argv = NULL;
+int main( void ) {
   return 0;
 }
