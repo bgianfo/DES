@@ -9,9 +9,10 @@
 */
 
 #include <cstdio>
+#include <cstring>
 #include "des.hpp"
 
-int main( void ) {
+int main( int i, char **argv ) {
 
   char key[17] = "133457799BBCDFF1";
   char msg[17] = "0123456789ABCDEF";
@@ -35,6 +36,12 @@ int main( void ) {
     cipher.encrypt();
     des::blktostr( cipher.cipherText(), dest );
   }
- 
-  printf( "With Key: %s\n", dest );
+
+  printf( "With Key: ");
+
+  for( int i = 0; i < strlen(dest); i++ ) {
+    printf( "%x", dest[i] );
+  }
+
+  return 0;
 }

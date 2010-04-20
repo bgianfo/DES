@@ -43,28 +43,28 @@ class des {
     */
 
     /* Number of shifts for each round */
-    static uint8_t des::SHIFTS[ROUNDS];
+    static uint8_t SHIFTS[ROUNDS];
 
     /* Primitive function P pg: 22 of DES spec */
-    static uint8_t des::P[(BKSIZE/2)];
+    static uint8_t P[(BKSIZE/2)];
 
     /* Primitive function E */
-    static uint8_t des::E[48];
+    static uint8_t E[48];
 
     /* Permeated choice #1 pg: 23 of DES spec */
-    static uint8_t des::PC1[56];
+    static uint8_t PC1[56];
 
     /* Permeated choice #2 pg: 23 of DES spec */
-    static uint8_t des::PC2[48];
+    static uint8_t PC2[48];
 
     /* Initial permutation pg: 14 */
-    static uint8_t des::IP[BKSIZE];
+    static uint8_t IP[BKSIZE];
 
     /* Final permutation, or IP prime pg: 14 */
-    static uint8_t des::IPP[BKSIZE];
+    static uint8_t IPP[BKSIZE];
 
     /* All S-Boxes 1-8 */
-    static uint8_t des::SP[8][BKSIZE];
+    static uint8_t SP[8][BKSIZE];
 
     /*
     ** Class state

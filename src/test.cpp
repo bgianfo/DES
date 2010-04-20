@@ -6,7 +6,7 @@
 #define UNITTEST 1
 
 #include "des.hpp"
-#include <stdint.h> 
+#include <stdint.h>
 #include <gtest/gtest.h>
 
 using ::testing::InitGoogleTest;
@@ -75,19 +75,21 @@ TEST( DESAlgo, Encrypt ) {
 
   char dest[17] = {
     0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, '\0'
+    0, 0, 0, 0, 0, 0, 0, 0
   };
 
   des cipher( mblck, kblck );
   cipher.encrypt();
   des::blktostr( cipher.cipherText(), dest );
 
-  char* ciphertext = "85E813540F0AB405";
-  ASSERT_TRUE( strcmp( dest, ciphertext ) == 0 );
+  char ciphertext[] = "85E813540F0AB405";
+
+  for( int i = 0; i < 16; i++ ) {
+      ASSERT_TRUE( dest[i] == ciphertext[i] );
+  }
+
 }
 
-
- 
 int main( int argc, char **argv ) {
 
   InitGoogleTest( &argc, argv );

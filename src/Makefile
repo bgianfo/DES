@@ -10,13 +10,15 @@
 ##########################################################
 
 CXX = g++
-CFLAGS = -g3 -pg -Wall -Wextra -ansi -pendantic
-LFLAGS = 
+#CXX = clang++
+#CFLAGS = -g3 -pg -Wall -Wextra -ansi -pendantic
+CFLAGS =  -O2
+LFLAGS =
 
 default: encrypt decrypt tester test
 
 encrypt: encrypt.cpp des.hpp des.cpp
-	$(CXX) -o encrypt $(LFLAGS) $(CFLAGS) des.cpp encrypt.cpp
+	$(CXX) $(LFLAGS) $(CFLAGS) des.cpp encrypt.cpp  -o encrypt 
 
 decrypt: decrypt.cpp des.hpp des.cpp
 	$(CXX) -o decrypt $(LFLAGS) $(CFLAGS) des.cpp decrypt.cpp

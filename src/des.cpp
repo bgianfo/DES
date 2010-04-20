@@ -2,12 +2,12 @@
 **  File: des.cpp
 **
 **  Authors:
-** 
+**
 **     Sam Milton        (srm2997@cs.rit.edu)
 **     Brian Gianforcaro (bjg1955@cs.rit.edu)
 **
 **  Description:
-**   
+**
 **     This initial implementation of the DES spec uses array's of 8-bit int's with
 **     64 elements each to represent both the DES block and DES key.
 **     Each element in the array is considered to be a single bit, and is either 0 or 1.
@@ -27,7 +27,7 @@ using namespace std;
 
 /*
 **
-** Default Constructor 
+** Default Constructor
 **
 ** @param block, 64 bit data block made up of two 32bit int's
 ** @param key, 64 bit key made up of two 32bit int's
@@ -39,8 +39,8 @@ des::des( block_t block , block_t key ) {
   assert( block != NULL );
   assert( key != NULL );
 
-  this->block = new uint8_t[BKSIZE];
-  this->key = new uint8_t[BKSIZE];
+  this->block = (uint8_t*) malloc(sizeof(uint8_t)*BKSIZE);
+  this->key = (uint8_t*) malloc(sizeof(uint8_t)*BKSIZE);
 
   memcpy( this->block, block, BKSIZE );
   memcpy( this->key, key, BKSIZE );
@@ -51,26 +51,26 @@ des::des( block_t block , block_t key ) {
 }
 
 /*
-** Default Destructor 
+** Default Destructor
 */
 
 des::~des( void ) {
 
-  delete this->block;
-  delete this->key;
+  free(this->block);
+  free(this->key);
 
   if ( this->ciphertext != NULL ) {
-    delete this->ciphertext;
+    free(this->ciphertext);
   }
 
   if ( this->plaintext != NULL ) {
-    delete this->plaintext;
+    free(this->plaintext);
   }
 }
 
 /*
 ** Public API to encryption algorithm of the class.
-** 
+**
 ** Encipherment:
 **
 **   L[0]R[0] = IP(plain block)
@@ -287,19 +287,19 @@ void des::f( block_t dest, block_t R, block_t K ) {
     rpk[i] = R[ E[i] - 1 ] xor K[i];
   }
 
-  // TODO: check to make sure this stuff is right, kind of doubting it 
+  // TODO: check to make sure this stuff is right, kind of doubting it
 
   /*
   ** Sbox only cares about 6 of 8 bits.
-  ** one iteration for every sbox 
+  ** one iteration for every sbox
   */
   for ( int j = 0; j < 8; j++ ) {
     uint8_t t = 6 * j;
 
     /* Obtain the value of the sbox depending on value of previous xor */
-    uint8_t in = ( rpk[t+0] << 5 ) + 
-                 ( rpk[t+1] << 3 ) + 
-                 ( rpk[t+2] << 2 ) + 
+    uint8_t in = ( rpk[t+0] << 5 ) +
+                 ( rpk[t+1] << 3 ) +
+                 ( rpk[t+2] << 2 ) +
                  ( rpk[t+3] << 1 ) +
                  ( rpk[t+4] << 0 ) +
                  ( rpk[t+5] << 4 );
@@ -351,7 +351,7 @@ uint8_t des::PC2[48] = {
 
 /* Shift's change depending on which round we are on */
 uint8_t des::SHIFTS[ROUNDS] = 
-{ 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2 ,1 };
+{ 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1 };
 
 /* 
 **  Key schedule:
@@ -364,21 +364,132 @@ uint8_t des::SHIFTS[ROUNDS] =
 **
 */
 
+void des::permutation_one( uint8_t key[], uint8_t out[] ) {
+
+   out[0]   =  key[56];
+   out[1]   =  key[48];
+   out[2]   =  key[40];
+   out[3]   =  key[32];
+   out[4]   =  key[24];
+   out[5]   =  key[16];
+   out[6]   =  key[ 8];
+   out[7]   =  key[ 0];
+   out[8]   =  key[57];
+   out[9]   =  key[49];
+   out[10]  =  key[41];
+   out[11]  =  key[33];
+   out[12]  =  key[25];
+   out[13]  =  key[17];
+   out[14]  =  key[ 9];
+   out[15]  =  key[ 1];
+   out[16]  =  key[58];
+   out[17]  =  key[50];
+   out[18]  =  key[42];
+   out[19]  =  key[34];
+   out[20]  =  key[26];
+   out[21]  =  key[18];
+   out[22]  =  key[10];
+   out[23]  =  key[ 2];
+   out[24]  =  key[59];
+   out[25]  =  key[51];
+   out[26]  =  key[43];
+   out[27]  =  key[35];
+   out[28]  =  key[62];
+   out[29]  =  key[54];
+   out[30]  =  key[46];
+   out[31]  =  key[38];
+   out[32]  =  key[30];
+   out[33]  =  key[22];
+   out[34]  =  key[14];
+   out[35]  =  key[ 6];
+   out[36]  =  key[61];
+   out[37]  =  key[53];
+   out[38]  =  key[45];
+   out[39]  =  key[37];
+   out[40]  =  key[29];
+   out[41]  =  key[21];
+   out[42]  =  key[13];
+   out[43]  =  key[ 5];
+   out[44]  =  key[60];
+   out[45]  =  key[52];
+   out[46]  =  key[44];
+   out[47]  =  key[36];
+   out[48]  =  key[28];
+   out[49]  =  key[20];
+   out[50]  =  key[12];
+   out[51]  =  key[ 4];
+   out[52]  =  key[27];
+   out[53]  =  key[19];
+   out[54]  =  key[11];
+   out[55]  =  key[ 3];
+
+}
+
+void des::keymutation_two( uint8_t key[], uint8_t out[] ) {
+
+   out[0]   =  key[13];
+   out[1]   =  key[16];
+   out[2]   =  key[10];
+   out[3]   =  key[23];
+   out[4]   =  key[0];
+   out[5]   =  key[4];
+   out[6]   =  key[2];
+   out[7]   =  key[27];
+   out[8]   =  key[14];
+   out[9]   =  key[5];
+   out[10]  =  key[20];
+   out[11]  =  key[9];
+   out[12]  =  key[22];
+   out[13]  =  key[18];
+   out[14]  =  key[11];
+   out[15]  =  key[3];
+   out[16]  =  key[25];
+   out[17]  =  key[7];
+   out[18]  =  key[15];
+   out[19]  =  key[6];
+   out[20]  =  key[26];
+   out[21]  =  key[19];
+   out[22]  =  key[12];
+   out[23]  =  key[1];
+   out[24]  =  key[40];
+   out[25]  =  key[51];
+   out[26]  =  key[30];
+   out[27]  =  key[36];
+   out[28]  =  key[46];
+   out[29]  =  key[54];
+   out[30]  =  key[29];
+   out[31]  =  key[39];
+   out[32]  =  key[50];
+   out[33]  =  key[46];
+   out[34]  =  key[32];
+   out[35]  =  key[47];
+   out[36]  =  key[43];
+   out[37]  =  key[48];
+   out[38]  =  key[38];
+   out[39]  =  key[55];
+   out[40]  =  key[33];
+   out[41]  =  key[52];
+   out[42]  =  key[45];
+   out[43]  =  key[41];
+   out[44]  =  key[49];
+   out[45]  =  key[35];
+   out[46]  =  key[28];
+   out[47]  =  key[31];
+}
+
+
 void des::keyschedule( void ) {
 
-  uint8_t C[28];
-  uint8_t D[28];
+  uint8_t C[56];
+  uint8_t *D = C + 28;
 
   /* 
   ** Generate both halves of the permutation on the key.
   ** Discarding the lowest order bit of every byte.
   */
 
-  for ( int i = 0; i < 28; i++ ) {
-    C[i] = this->key[ PC1[ i ] - 1 ];
-    D[i] = this->key[ PC1[ i + 28 ] - 1 ];
-  }
 
+  this->permutation_one( this->key, C );
 
   /* Generate the 16 key's we will need for each round. */
   for ( int i = 0; i < ROUNDS; i++ ) {
@@ -401,11 +512,12 @@ void des::keyschedule( void ) {
       D[27] = td0;
     }
 
+    uint8_t C2[56];
+    this->permutation_two( C, C2 );
     /* Copy over this rounds key */ 
-    for ( int j = 0; j < 24; j++ ) {
+    for ( int j = 0; j < 48; j++ ) {
       /* Of the each 28 bit half only take 24 bits */
-      this->scheduled_keys[i][j]    =  C[ PC2[j] - 1 ];
-      this->scheduled_keys[i][j+24] =  D[ PC2[j+24] - 1 ];
+      this->scheduled_keys[i][j]  =  C2[ j ];
     }
   }
 }
