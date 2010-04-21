@@ -11,8 +11,8 @@
 
 CXX = g++
 #CXX = clang++
-#CFLAGS = -g3 -pg -Wall -Wextra -ansi -pendantic
-CFLAGS =  -O2
+CFLAGS = -g3 -pg -Wall -Wextra -ansi -pendantic
+#CFLAGS =  -O2
 LFLAGS =
 
 default: encrypt decrypt tester test

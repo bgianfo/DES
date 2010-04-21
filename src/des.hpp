@@ -34,7 +34,7 @@ enum action_t {
 /* Define a block type to use */
 typedef uint8_t* block_t;
 
-class des {
+class DES {
 
   private:
 
@@ -64,7 +64,7 @@ class des {
     static uint8_t IPP[BKSIZE];
 
     /* All S-Boxes 1-8 */
-    static uint8_t SP[8][BKSIZE];
+    static uint8_t SP[8][4][16];
 
     /*
     ** Class state
@@ -97,13 +97,21 @@ class des {
     /* Main entry point to DES cipher */
     void algorithm( action_t action );
 
+    void primative( uint8_t block[], uint8_t out[] );
+
+    void blkInversePermutation( uint8_t block[], uint8_t out[] );
+
+    void permutation_one( uint8_t key[], uint8_t out[] );
+
+    void permutation_two( uint8_t key[], uint8_t out[] );
+
   public:
 
     /* Constructor */
-    des( block_t block , block_t key );
+    DES( block_t block , block_t key );
 
     /* Destructor */
-    ~des( void );
+    ~DES( void );
 
     void encrypt( void );
 
