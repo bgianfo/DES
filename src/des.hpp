@@ -90,7 +90,7 @@ class DES {
 
     /* DES Fiestal function */
     void f( block_t dest, block_t R, block_t K );
- 
+
     /* Schedule keys for all rounds */
     void keyschedule( void );
 
@@ -99,7 +99,9 @@ class DES {
 
     void primative( uint8_t block[], uint8_t out[] );
 
-    void blkInversePermutation( uint8_t block[], uint8_t out[] );
+    void initPermutation( uint8_t block[], uint8_t out[] );
+
+    void inverseInitPermutation( uint8_t block[], uint8_t out[] );
 
     void permutation_one( uint8_t key[], uint8_t out[] );
 

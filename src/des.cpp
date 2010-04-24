@@ -106,15 +106,15 @@ void DES::decrypt( void ) {
 
 /* IP prime pg: 14 */
 uint8_t DES::IP[BKSIZE] = {
-  58, 50, 42, 34, 26, 18, 10, 2, 
-  60, 52, 44, 36, 28, 20, 12, 4, 
-  62, 54, 46, 38, 30, 22, 14, 6, 
-  64, 56, 48, 40, 32, 24, 16, 8, 
+  58, 50, 42, 34, 26, 18, 10, 2,
+  60, 52, 44, 36, 28, 20, 12, 4,
+  62, 54, 46, 38, 30, 22, 14, 6,
+  64, 56, 48, 40, 32, 24, 16, 8,
 
-  57, 49, 41, 33, 25, 17,  9, 1, 
-  59, 51, 43, 35, 27, 19, 11, 3, 
-  61, 53, 45, 37, 29, 21, 13, 5, 
-  63, 55, 47, 39, 31, 23, 15, 7 
+  57, 49, 41, 33, 25, 17,  9, 1,
+  59, 51, 43, 35, 27, 19, 11, 3,
+  61, 53, 45, 37, 29, 21, 13, 5,
+  63, 55, 47, 39, 31, 23, 15, 7
 };
 
 /* Primitive function P pg: 22 of DES spec */
@@ -127,22 +127,22 @@ uint8_t DES::P[(BKSIZE/2)] = {
    2,  8, 24, 14,
   32, 27,  3,  9,
   19, 13, 30,  6,
-  22, 11,  4, 25 
+  22, 11,  4, 25
 };
 
 /* IP prime pg: 14 */
 uint8_t DES::IPP[BKSIZE] = {
-  40,  8, 48, 16, 56, 24, 64, 32, 
-  39,  7, 47, 15, 55, 23, 63, 31, 
-  38,  6, 46, 14, 54, 22, 62, 30, 
-  37,  5, 45, 13, 53, 21, 61, 29, 
-  36,  4, 44, 12, 52, 20, 60, 28, 
-  35,  3, 43, 11, 51, 19, 59, 27, 
-  34,  2, 42, 10, 50, 18, 58, 26, 
+  40,  8, 48, 16, 56, 24, 64, 32,
+  39,  7, 47, 15, 55, 23, 63, 31,
+  38,  6, 46, 14, 54, 22, 62, 30,
+  37,  5, 45, 13, 53, 21, 61, 29,
+  36,  4, 44, 12, 52, 20, 60, 28,
+  35,  3, 43, 11, 51, 19, 59, 27,
+  34,  2, 42, 10, 50, 18, 58, 26,
   33,  1, 41,  9, 49, 17, 57, 25
 };
 
-void DES::initPermutation( unit8_t block[], unit8_t out[] ){
+void DES::initPermutation( uint8_t block[], uint8_t out[] ){
   out[0]  = block[57];
   out[1]  = block[49];
   out[2]  = block[41];
@@ -210,41 +210,6 @@ void DES::initPermutation( unit8_t block[], unit8_t out[] ){
 }
 
 void DES::primative( uint8_t block[], uint8_t out[] ) {
-  out[0]  = block[15];
-  out[1]  = block[6];
-  out[2]  = block[19];
-  out[3]  = block[20];
-  out[4]  = block[28];
-  out[5]  = block[11];
-  out[6]  = block[27];
-  out[7]  = block[16];
-  out[8]  = block[0];
-  out[9]  = block[14];
-  out[10] = block[22];
-  out[11] = block[25];
-  out[12] = block[4];
-  out[13] = block[17];
-  out[14] = block[30];
-  out[15] = block[9];
-  out[16] = block[1];
-  out[17] = block[7];
-  out[18] = block[23];
-  out[19] = block[13];
-  out[20] = block[31];
-  out[21] = block[26];
-  out[22] = block[2];
-  out[23] = block[8];
-  out[24] = block[18];
-  out[25] = block[12];
-  out[26] = block[29];
-  out[27] = block[5];
-  out[28] = block[21];
-  out[29] = block[10];
-  out[30] = block[3];
-  out[31] = block[24];
-}
-
-void DES::blkInversePermutation( uint8_t block[], uint8_t out[] ) {
   out[0]  = block[15];
   out[1]  = block[6];
   out[2]  = block[19];
