@@ -14,8 +14,8 @@
 
 int main( int i, char **argv ) {
 
-  char key[17] = "0133456";
-  char msg[17] = "0123456";
+  char key[17] = "01334567";
+  char msg[17] = "01234567";
 
   printf( "Encrypting: %s\n", msg );
   printf( "With Key: %s\n", key );

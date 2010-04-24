@@ -79,7 +79,6 @@ TEST( DESutil, strtoblk ) {
   char *msg = "0123456";
 
   block_t output1 = new uint8_t[56];
-  block_t output2 = new uint8_t[56];
 
   DES::sttoblk( output1, msg );
 
@@ -99,8 +98,8 @@ TEST( DESutil, strtoblk ) {
 
 TEST( DESAlgo, Encrypt ) {
 
-  char key[17] = "0123456"; 
-  char msg[17] = "0123456";
+  char key[8] = "0123456"; 
+  char msg[8] = "0123456";
 
   uint8_t kblck[64];
   uint8_t mblck[64];
@@ -108,18 +107,25 @@ TEST( DESAlgo, Encrypt ) {
   DES::sttoblk( kblck, key );
   DES::sttoblk( mblck, msg );
 
-  char dest[17] = {
+  char dest[8] = {
     0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0
   };
 
   DES cipher( mblck, kblck );
   cipher.encrypt();
   DES::blktostr( cipher.cipherText(), dest );
 
+  char ciphertext[] = {
+    0x66,0x27,0x01,0x97,0x92,0x4E,0x36,0x2E
+  };
+  /*
   char ciphertext[] = "85E813540F0AB405";
+  */
 
-  for( int i = 0; i < 16; i++ ) {
+  for( int i = 0; i < 8; i++ ) {
+      printf("%02X  == %02X\n", (unsigned char)dest[i] , (unsigned char)ciphertext[i] );
+  }
+  for( int i = 0; i < 8; i++ ) {
       ASSERT_TRUE( dest[i] == ciphertext[i] );
   }
 

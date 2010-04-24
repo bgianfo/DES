@@ -396,7 +396,7 @@ void DES::f( block_t dest, block_t R, block_t K ) {
           }
           
           for( int t = 0; t < 4; t++ ) {
-            dest[g++]=b[i];
+            dest[g++] = b[i];
           }
   }
   /*
@@ -666,7 +666,7 @@ void DES::off( block_t data, const int bit ) {
 */
 
 void DES::sttoblk( block_t blk, char* str ) {
-  for (int i = 0; i < 7; i++ ) {
+  for (int i = 0; i < 8; i++ ) {
     int j = i*8;
     blk[j+7] = DES::get(str[i],0);
     blk[j+6] = DES::get(str[i],1);
@@ -685,7 +685,7 @@ void DES::sttoblk( block_t blk, char* str ) {
 
 void DES::blktostr( block_t blk, char* str ) {
 
-  for (int i = 0; i < 7; i++ ) {
+  for (int i = 0; i < 8; i++ ) {
 
     int j = i*8;
     for (int t = 0; t < 8; t++ ) {

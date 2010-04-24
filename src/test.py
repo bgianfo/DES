@@ -8,5 +8,5 @@ def a(chars):
   return bin(reduce(lambda x, y : (x<<8)+y, (ord(c) for c in chars), 1))[3:]
 
 
-x = a("0123456")
+x = a("01234567")
 print( x )
