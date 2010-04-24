@@ -244,7 +244,7 @@ void DES::primative( uint8_t block[], uint8_t out[] ) {
   out[31] = block[24];
 }
 
-void DES::pinverseInitPermutation( uint8_t block[], uint8_t out[] ) {
+void DES::inverseInitPermutation( uint8_t block[], uint8_t out[] ) {
 
   out[0]   =  block[39];
   out[1]   =  block[ 7];
