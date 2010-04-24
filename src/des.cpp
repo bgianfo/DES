@@ -142,6 +142,73 @@ uint8_t DES::IPP[BKSIZE] = {
   33,  1, 41,  9, 49, 17, 57, 25
 };
 
+void DES::initPermutation( unit8_t block[], unit8_t out[] ){
+  out[0]  = block[57];
+  out[1]  = block[49];
+  out[2]  = block[41];
+  out[3]  = block[33];
+  out[4]  = block[25];
+  out[5]  = block[17];
+  out[6]  = block[9];
+  out[7]  = block[1];
+  out[8]  = block[59];
+  out[9]  = block[51];
+  out[10] = block[43];
+  out[11] = block[35];
+  out[12] = block[27];
+  out[13] = block[19];
+  out[14] = block[11];
+  out[15] = block[3];
+  out[16] = block[61];
+  out[17] = block[53];
+  out[18] = block[45];
+  out[19] = block[37];
+  out[20] = block[29];
+  out[21] = block[21];
+  out[22] = block[13];
+  out[23] = block[5];
+  out[24] = block[63];
+  out[25] = block[55];
+  out[26] = block[47];
+  out[27] = block[39];
+  out[28] = block[31];
+  out[29] = block[23];
+  out[30] = block[15];
+  out[31] = block[7];
+  out[32] = block[56];
+  out[33] = block[48];
+  out[34] = block[40];
+  out[35] = block[32];
+  out[36] = block[24];
+  out[37] = block[16];
+  out[38] = block[8];
+  out[39] = block[0];
+  out[40] = block[58];
+  out[41] = block[50];
+  out[42] = block[42];
+  out[43] = block[34];
+  out[44] = block[26];
+  out[45] = block[18];
+  out[46] = block[10];
+  out[47] = block[2];
+  out[48] = block[60];
+  out[49] = block[52];
+  out[50] = block[44];
+  out[51] = block[36];
+  out[52] = block[28];
+  out[53] = block[20];
+  out[54] = block[12];
+  out[55] = block[4];
+  out[56] = block[62];
+  out[57] = block[54];
+  out[58] = block[46];
+  out[59] = block[38];
+  out[60] = block[30];
+  out[61] = block[22];
+  out[62] = block[14];
+  out[63] = block[6];
+}
+
 void DES::primative( uint8_t block[], uint8_t out[] ) {
   out[0]  = block[15];
   out[1]  = block[6];
