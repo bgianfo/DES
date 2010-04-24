@@ -11,7 +11,7 @@
 
 CXX = g++
 #CXX = clang++
-CFLAGS = -g3 -pg -Wall -Wextra -ansi -pendantic
+CFLAGS = -g3 -pg -Wall -Wextra -ansi -pedantic
 #CFLAGS =  -O2
 LFLAGS =
 

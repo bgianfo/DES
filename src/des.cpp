@@ -574,7 +574,7 @@ void DES::permutation_two( uint8_t key[], uint8_t out[] ) {
    out[30]  =  key[29];
    out[31]  =  key[39];
    out[32]  =  key[50];
-   out[33]  =  key[46];
+   out[33]  =  key[44];
    out[34]  =  key[32];
    out[35]  =  key[47];
    out[36]  =  key[43];
