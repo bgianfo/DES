@@ -279,6 +279,75 @@ void DES::blkInversePermutation( uint8_t block[], uint8_t out[] ) {
   out[31] = block[24];
 }
 
+void inverseInitPermutation( uint8_t block[], uint8_t out[] ) {
+
+  out[0]   =  block[39];
+  out[1]   =  block[ 7];
+  out[2]   =  block[47];
+  out[3]   =  block[15];
+  out[4]   =  block[55];
+  out[5]   =  block[23];
+  out[6]   =  block[63];
+  out[7]   =  block[31];
+  out[8]   =  block[38];
+  out[9]   =  block[ 6];
+  out[10]  =  block[46];
+  out[11]  =  block[14];
+  out[12]  =  block[54];
+  out[13]  =  block[22];
+  out[14]  =  block[62];
+  out[15]  =  block[30];
+  out[16]  =  block[37];
+  out[17]  =  block[ 5];
+  out[18]  =  block[45];
+  out[19]  =  block[13];
+  out[20]  =  block[53];
+  out[21]  =  block[21];
+  out[22]  =  block[61];
+  out[23]  =  block[29];
+  out[24]  =  block[36];
+  out[25]  =  block[ 4];
+  out[26]  =  block[44];
+  out[27]  =  block[12];
+  out[28]  =  block[52];
+  out[29]  =  block[20];
+  out[30]  =  block[60];
+  out[31]  =  block[28];
+  out[32]  =  block[35];
+  out[33]  =  block[ 3];
+  out[34]  =  block[43];
+  out[35]  =  block[11];
+  out[36]  =  block[51];
+  out[37]  =  block[19];
+  out[38]  =  block[59];
+  out[39]  =  block[27];
+  out[40]  =  block[34];
+  out[41]  =  block[ 2];
+  out[42]  =  block[42];
+  out[43]  =  block[10];
+  out[44]  =  block[50];
+  out[45]  =  block[18];
+  out[46]  =  block[58];
+  out[47]  =  block[26];
+  out[48]  =  block[33];
+  out[49]  =  block[ 1];
+  out[50]  =  block[41];
+  out[51]  =  block[ 9];
+  out[52]  =  block[49];
+  out[53]  =  block[17];
+  out[54]  =  block[57];
+  out[55]  =  block[25];
+  out[56]  =  block[32];
+  out[57]  =  block[ 0];
+  out[58]  =  block[40];
+  out[59]  =  block[ 8];
+  out[60]  =  block[48];
+  out[61]  =  block[16];
+  out[62]  =  block[56];
+  out[63]  =  block[24];
+
+}
+
 
 /*
 **
@@ -287,14 +356,19 @@ void DES::blkInversePermutation( uint8_t block[], uint8_t out[] ) {
 */
 
 void DES::algorithm( const action_t action ) {
-  
+
   /* Schedule them key's! */
   this->keyschedule();
 
-  uint8_t tmp[BKSIZE]; 
+  uint8_t tmp[BKSIZE];
 
-  /* Perform the initial permutation on the input block */
-  this->primative( this->block, tmp );
+  /* Perform a permutation on the input block */
+  if ( action == encrypt_a ) {
+    this->initPermutation( this->block, tmp );
+  } else {
+    this->inverseInitPermutation( this->block, tmp );
+  }
+
 
   /* Split the input block */
   block_t l = tmp;
@@ -305,7 +379,7 @@ void DES::algorithm( const action_t action ) {
     /* store r for later */
     uint8_t r_saved[(BKSIZE/2)];
     memcpy( r_saved, r, BKSIZE/2 );
-   
+
     /* Run the Fiestel function */
     uint8_t fblck[32];
     DES::f( fblck, r, this->scheduled_keys[this->round] );
@@ -324,19 +398,19 @@ void DES::algorithm( const action_t action ) {
   std::swap_ranges( l, l + (BKSIZE/2), r );
 
   /*
-  ** Copy result back into destination, 
-  ** remember l and r point to separate halves of a block of size 64.
+  ** Copy result back into destination,
+  ** remember l and r point to separate halves of a continuous block of size 64.
   */
 
-  block_t out;
-  out = (action == encrypt_a) ? this->ciphertext : this->plaintext;
-  for ( int i = 0; i < BKSIZE; i++ ) { 
-      out[i] = l[ IPP[i] - 1 ];
+  if ( action == encrypt_a ) {
+    this->inverseInitPermutation( l, this->ciphertext );
+  } else {
+    this->initPermutation( l, this->plaintext );
   }
 }
 
 /* All S-Boxes  */
-uint8_t DES::SP[8][4][16] = 
+uint8_t DES::SP[8][4][16] =
 {
   {
      /* S1 function pg: 19 of DES spec */
@@ -345,7 +419,7 @@ uint8_t DES::SP[8][4][16] =
       {  4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10, 5,  0},
       { 15, 12,  8,  2,  4,  9,  1,  7,  5, 11,  3, 14, 10,  0, 6, 13}
 
-  },{ 
+  },{
      /* S2 function pg: 19 of DES spec */
      {15,  1,  8, 14,  6, 11,  3,  4,  9,  7,  2, 13, 12,  0,  5, 10},
      { 3, 13,  4,  7, 15,  2,  8, 14, 12,  0,  1, 10,  6,  9, 11,  5},
@@ -392,14 +466,14 @@ uint8_t DES::SP[8][4][16] =
 
 /* Primitive function  E */
 uint8_t DES::E[48] = {
-  32,  1,  2,  3,  4,  5, 
-   4,  5,  6,  7,  8,  9, 
-   8,  9, 10, 11, 12, 13, 
-  12, 13, 14, 15, 16, 17, 
+  32,  1,  2,  3,  4,  5,
+   4,  5,  6,  7,  8,  9,
+   8,  9, 10, 11, 12, 13,
+  12, 13, 14, 15, 16, 17,
 
-  16, 17, 18, 19, 20, 21, 
-  20, 21, 22, 23, 24, 25, 
-  24, 25, 26, 27, 28, 29, 
+  16, 17, 18, 19, 20, 21,
+  20, 21, 22, 23, 24, 25,
+  24, 25, 26, 27, 28, 29,
   28, 29, 30, 31, 32,  1
 };
 
@@ -440,7 +514,7 @@ void DES::f( block_t dest, block_t R, block_t K ) {
           int q = 0;
           int k = ( a[i][0] * 2 ) + ( a[i][5] * 1 );
 
-          { 
+          {
             int p = 1;
             int j = 4;
             while( j > 0 ) {
@@ -461,11 +535,12 @@ void DES::f( block_t dest, block_t R, block_t K ) {
           {
                   b[j--]=0;
           }
-          
+
           for( int t = 0; t < 4; t++ ) {
             dest[g++] = b[i];
           }
   }
+
   /*
   ** Sbox only cares about 6 of 8 bits.
   ** one iteration for every sbox
@@ -531,10 +606,10 @@ uint8_t DES::PC2[48] = {
 };
 
 /* Shift's change depending on which round we are on */
-uint8_t DES::SHIFTS[ROUNDS] = 
+uint8_t DES::SHIFTS[ROUNDS] =
 { 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1 };
 
-/* 
+/*
 **  Key schedule:
 **
 **   C[0]D[0] = PC1(key)
