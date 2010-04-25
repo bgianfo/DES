@@ -340,7 +340,7 @@ void DES::algorithm( const action_t action ) {
     if ( action == encrypt_a ) {
       key = this->scheduled_keys[ this->round ];
     } else {
-      key = this->scheduled_keys[ ROUNDS - this->round ];
+      key = this->scheduled_keys[ ( ROUNDS - 1 )  - this->round ];
     }
 
     /* store r for later */

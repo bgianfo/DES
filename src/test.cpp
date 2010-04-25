@@ -188,14 +188,8 @@ TEST( DESAlgo, Decrypt ) {
                       1,1,0,0,1,1,0,1,1,1,1,0,1,1,1,1 };
 
   for( int i = 0; i < 64; i++ ) {
-       printf( "%d", msg[i]);
-     //EXPECT_EQ( msg[i], cipher.plainText()[i] );
+    EXPECT_EQ( msg[i], cipher.plainText()[i] );
   }
-  printf("\n");
-  for( int i = 0; i < 64; i++ ) {
-       printf( "%d", cipher.plainText()[i] );
-  }
-  printf("\n");
 
 }
 
