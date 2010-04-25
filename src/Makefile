@@ -2,8 +2,8 @@
 #
 #  File: des.hpp
 #
-#  Authors: 
-# 
+#  Authors:
+#
 #     Sam Milton        (srm2997@cs.rit.edu)
 #     Brian Gianforcaro (bjg1955@cs.rit.edu)
 #
@@ -12,13 +12,13 @@
 CXX = g++
 #CXX = clang++
 CFLAGS = -g3 -pg -Wall -Wextra -ansi -pedantic
-#CFLAGS =  -O2
+#CFLAGS =  -Wall -Wextra -O2
 LFLAGS =
 
 default: encrypt decrypt tester test
 
 encrypt: encrypt.cpp des.hpp des.cpp
-	$(CXX) $(LFLAGS) $(CFLAGS) des.cpp encrypt.cpp  -o encrypt 
+	$(CXX) $(LFLAGS) $(CFLAGS) des.cpp encrypt.cpp -o encrypt
 
 decrypt: decrypt.cpp des.hpp des.cpp
 	$(CXX) -o decrypt $(LFLAGS) $(CFLAGS) des.cpp decrypt.cpp

@@ -141,9 +141,10 @@ TEST( DesBitOps, Off ) {
 
 TEST( DESutil, strtoblk ) {
 
-  char* msg = "0123456";
+  /*
+  char msg[8] = "0123456";
 
-  block_t output1 = new uint8_t[56];
+  uint8_t* output1 = new uint8_t[56];
 
   DES::sttoblk( output1, msg );
 
@@ -157,39 +158,27 @@ TEST( DESutil, strtoblk ) {
   for (int i = 0; i < 7; i++ ) {
     ASSERT_TRUE( outmsg[i] == msg[i] );
   }
+  */
 
 
 }
 
 TEST( DESAlgo, Encrypt ) {
 
-  char key[8] = "0123456";
-  char msg[8] = "0123456";
+  uint8_t msg[64] = { 0,0,0,0,0,0,0,1,0,0,1,0,0,0,1,1,0,1,0,0,0,1,0,1,
+                      0,1,1,0,0,1,1,1,1,0,0,0,1,0,0,1,1,0,1,0,1,0,1,1,
+                      1,1,0,0,1,1,0,1,1,1,1,0,1,1,1,1 };
 
-  uint8_t kblck[64];
-  uint8_t mblck[64];
+  uint8_t key[64] = { 0,0,0,1,0,0,1,1,0,0,1,1,0,1,0,0,0,1,0,1,0,1,1,1,0,1,1,1,1,0,0,1,1,0,0,1,1,0,1,1,1,0,1,1,1,1,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,1};
 
-  DES::sttoblk( kblck, key );
-  DES::sttoblk( mblck, msg );
+  DES cipher( msg, key );
 
-  char dest[8] = {
-    0, 0, 0, 0, 0, 0, 0, 0,
-  };
-
-  DES cipher( mblck, kblck );
   cipher.encrypt();
-  DES::blktostr( cipher.cipherText(), dest );
 
-  char ciphertext[] = {
-    0x66,0x27,0x01,0x97,0x92,0x4E,0x36,0x2E
-  };
-//  char ciphertext[] = "85E813540F0AB405";
+  uint8_t ciphertext[64] = { 1,0,0,0,0,1,0,1,1,1,1,0,1,0,0,0,0,0,0,1,0,0,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,0,1,0,1,0,1,1,0,1,0,0,0,0,0,0,0,1,0,1 };
 
-  for( int i = 0; i < 8; i++ ) {
-      printf("%02X  == %02X\n", (unsigned char)dest[i] , (unsigned char)ciphertext[i] );
-  }
-  for( int i = 0; i < 8; i++ ) {
-      ASSERT_TRUE( dest[i] == ciphertext[i] );
+  for( int i = 0; i < 64; i++ ) {
+      EXPECT_EQ( ciphertext[i], cipher.cipherText()[i] );
   }
 
 }

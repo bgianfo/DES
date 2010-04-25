@@ -12,7 +12,7 @@
 #include <cstring>
 #include "des.hpp"
 
-int main( int i, char **argv ) {
+int main( ) {
 
   char key[17] = "01334567";
   char msg[17] = "01234567";
