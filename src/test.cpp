@@ -58,19 +58,10 @@ TEST( Keygen, match ) {
   DES cipher( msg, key );
   cipher.keyschedule();
 
-  for (int i = 0; i < ROUNDS; i++ ) {
-
-    for (int j = 0; j < BKSIZE; j++ ) {
-      printf( "%d", cipher.scheduled_keys[i][j] );
-      //EXPECT_EQ( cipher.scheduled_keys[i][j] , correct_keys[i][j] );
+  for ( int i = 0; i < ROUNDS; i++ ) {
+    for ( int j = 0; j < 48; j++ ) {
+      EXPECT_EQ( cipher.scheduled_keys[i][j] , correct_keys[i][j] );
     }
-    printf("\n");
-    for (int j = 0; j < BKSIZE; j++ ) {
-      printf( "%d", correct_keys[i][j] );
-      //EXPECT_EQ( cipher.scheduled_keys[i][j] , correct_keys[i][j] );
-    }
-    printf("\n");
-
   }
 
 }
@@ -182,6 +173,26 @@ TEST( DESAlgo, Encrypt ) {
   }
 
 }
+
+TEST( DESAlgo, Decrypt ) {
+  uint8_t ciphertext[64] = { 1,0,0,0,0,1,0,1,1,1,1,0,1,0,0,0,0,0,0,1,0,0,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,0,1,0,1,0,1,1,0,1,0,0,0,0,0,0,0,1,0,1 };
+
+  uint8_t key[64] = { 0,0,0,1,0,0,1,1,0,0,1,1,0,1,0,0,0,1,0,1,0,1,1,1,0,1,1,1,1,0,0,1,1,0,0,1,1,0,1,1,1,0,1,1,1,1,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,1};
+
+  DES cipher( ciphertext, key );
+
+  cipher.decrypt();
+
+  uint8_t msg[64] = { 0,0,0,0,0,0,0,1,0,0,1,0,0,0,1,1,0,1,0,0,0,1,0,1,
+                      0,1,1,0,0,1,1,1,1,0,0,0,1,0,0,1,1,0,1,0,1,0,1,1,
+                      1,1,0,0,1,1,0,1,1,1,1,0,1,1,1,1 };
+
+  for( int i = 0; i < 64; i++ ) {
+      EXPECT_EQ( msg[i], cipher.plainText()[i] );
+  }
+
+}
+
 
 int main( int argc, char **argv ) {
 

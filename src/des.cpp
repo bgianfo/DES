@@ -327,19 +327,21 @@ void DES::algorithm( const action_t action ) {
 
   uint8_t tmp[BKSIZE];
 
-  /* Perform a permutation on the input block */
-  if ( action == encrypt_a ) {
-    this->initPermutation( this->block, tmp );
-  } else {
-    this->inverseInitPermutation( this->block, tmp );
-  }
+  /* Mix up the input data block a little bit */
+  this->initPermutation( this->block, tmp );
 
-
-  /* Split the input block */
+  /* Split the input data block */
   block_t l = tmp;
   block_t r = tmp + (BKSIZE/2);
 
   for ( this->round = 0; this->round < ROUNDS; this->round++ ) {
+
+    uint8_t* key;
+    if ( action == encrypt_a ) {
+      key = this->scheduled_keys[ this->round ];
+    } else {
+      key = this->scheduled_keys[ ROUNDS - this->round ];
+    }
 
     /* store r for later */
     uint8_t r_saved[(BKSIZE/2)];
@@ -347,7 +349,7 @@ void DES::algorithm( const action_t action ) {
 
     /* Run the Fiestel function */
     uint8_t fblck[32];
-    DES::f( fblck, r, this->scheduled_keys[this->round] );
+    DES::f( fblck, r, key );
 
     /* R = L ^ f(R,K) */
     for ( int j = 0; j < 32; j++ ) {
@@ -358,20 +360,15 @@ void DES::algorithm( const action_t action ) {
     memcpy( l, r_saved, BKSIZE/2 );
   }
 
-  /* TODO: Make sure this blatant misuse of how iterators works! */
   /* Swap output before final permutation */
   std::swap_ranges( l, l + (BKSIZE/2), r );
 
   /*
   ** Copy result back into destination,
-  ** remember l and r point to separate halves of a continuous block of size 64.
+  ** remember l and r point to separate
+  ** halves of a continuous block of size 64.
   */
-
-  if ( action == encrypt_a ) {
-    this->inverseInitPermutation( l, this->ciphertext );
-  } else {
-    this->initPermutation( l, this->plaintext );
-  }
+  this->inverseInitPermutation( l, this->ciphertext );
 }
 
 /* All S-Boxes  */
@@ -732,7 +729,7 @@ void DES::keyschedule( void ) {
       D[27] = td0;
     }
 
-    uint8_t C2[56];
+    uint8_t C2[48];
     this->permutation_two( C, C2 );
     /* Copy over this rounds key */
     for ( int j = 0; j < 48; j++ ) {
