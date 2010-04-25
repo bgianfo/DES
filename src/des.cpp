@@ -516,7 +516,7 @@ void DES::f( block_t dest, block_t R, block_t K ) {
     rpk[i] = rpk[i] ^ K[i];
   }
 
-// For noobs
+  /* Create B0 - B7, each 6 bits of rpk */
   uint8_t B[8][6] = {
   { rpk[0], rpk[1], rpk[2], rpk[3], rpk[4], rpk[5] },
   { rpk[6], rpk[7], rpk[8], rpk[9], rpk[10], rpk[11] },
@@ -528,41 +528,17 @@ void DES::f( block_t dest, block_t R, block_t K ) {
   { rpk[42], rpk[43], rpk[44], rpk[45], rpk[46], rpk[47] } };
 
   for( int i = 0; i < 8; ++i ){
+    /* Bits 0 and 5 make index m */
     uint8_t m = B[i][0] * 2 + B[i][5];
+    /* Bits 1-4 make index n */
     uint8_t n = B[i][1] * 8 + B[i][2] * 4 + B[i][3] * 2 + B[i][4];
+
+    /* Index from the S-Functions and store resulting bits into the answer */
     dest[i*4] = DES::get( SP[i][m][n], 3 );
     dest[i*4+1] = DES::get( SP[i][m][n], 2 );
     dest[i*4+2] = DES::get( SP[i][m][n], 1 );
     dest[i*4+3] = DES::get( SP[i][m][n], 0 );
   }
-// End For noobs
-
-  /*
-  ** Sbox only cares about 6 of 8 bits.
-  ** one iteration for every sbox
-  */
-        /*
-  for ( int j = 0; j < 8; j++ ) {
-    uint8_t t = 6 * j;
-    */
-
-    /* Obtain the value of the sbox depending on value of previous xor */
-        /*
-    uint8_t in = ( rpk[t+0] << 5 ) +
-                 ( rpk[t+1] << 3 ) +
-                 ( rpk[t+2] << 2 ) +
-                 ( rpk[t+3] << 1 ) +
-                 ( rpk[t+4] << 0 ) +
-                 ( rpk[t+5] << 4 );
-
-    uint8_t k = SP[j][in];
-
-    t = 4*j;
-    for ( int i = 0; i < 4; i++ ) {
-      dest[t+i] = (k >>(3-i)) & 1;
-    }
-  }
-  */
 }
 
 
