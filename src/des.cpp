@@ -368,7 +368,7 @@ void DES::algorithm( const action_t action ) {
   ** remember l and r point to separate
   ** halves of a continuous block of size 64.
   */
-  this->inverseInitPermutation( l, this->ciphertext );
+  this->inverseInitPermutation( l, (action == encrypt_a) ? this->ciphertext : this->plaintext );
 }
 
 /* All S-Boxes  */
