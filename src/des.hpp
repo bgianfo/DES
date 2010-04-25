@@ -107,6 +107,8 @@ class DES {
 
     void permutation_two( uint8_t key[], uint8_t out[] );
 
+    void expand( block_t key, uint8_t out[] );
+
   public:
 
     /* Constructor */

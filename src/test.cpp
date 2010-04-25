@@ -11,6 +11,22 @@
 
 using ::testing::InitGoogleTest;
 
+TEST( f_function, Test ){
+  uint8_t dum[64];
+  DES dummy( dum, dum );
+
+  uint8_t ans[32] = { 0,1,0,1, 1,1,0,0, 1,0,0,0, 0,0,1,0, 1,0,1,1, 0,1,0,1, 1,0,0,1, 0,1,1,1 };
+  uint8_t dest[32];
+  uint8_t R[48] = { 1,1,1,1,0,0,0,0,1,0,1,0,1,0,1,0,1,1,1,1,0,0,0,0,1,0,1,0,1,0,1,0 };
+  uint8_t K[48] = {0,0,0,1,1,0,1,1,0,0,0,0,0,0,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,0,0,0,0,0,1,1,1,0,0,1,0};
+  
+  dummy.f( dest, R, K );
+
+  for( int i = 0; i < 32; ++i ){
+    ASSERT_TRUE( dest[i] == ans[i] );
+  }
+}
+
 TEST( DesBitOps, Get ) {
   ASSERT_TRUE(  DES::get( 1, 0 ) );
   ASSERT_FALSE( DES::get( 1, 1 ) );

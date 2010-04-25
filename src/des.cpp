@@ -442,11 +442,62 @@ uint8_t DES::E[48] = {
   28, 29, 30, 31, 32,  1
 };
 
+void DES::expand( block_t block, uint8_t out[] ){
+  out[0] = block[31];
+  out[1] = block[0];
+  out[2] = block[1];
+  out[3] = block[2];
+  out[4] = block[3];
+  out[5] = block[4];
+  out[6] = block[3];
+  out[7] = block[4];
+  out[8] = block[5];
+  out[9] = block[6];
+  out[10]= block[7];
+  out[11]= block[8];
+  out[12]= block[7];
+  out[13]= block[8];
+  out[14]= block[9];
+  out[15]= block[10];
+  out[16] = block[11];
+  out[17] = block[12];
+  out[18] = block[11];
+  out[19] = block[12];
+  out[20] = block[13];
+  out[21] = block[14];
+  out[22] = block[15];
+  out[23] = block[16];
+  out[24] = block[15];
+  out[25] = block[16];
+  out[26] = block[17];
+  out[27] = block[18];
+  out[28] = block[19];
+  out[29] = block[20];
+  out[30] = block[19];
+  out[31] = block[20];
+  out[32] = block[21];
+  out[33] = block[22];
+  out[34] = block[23];
+  out[35] = block[24];
+  out[36] = block[23];
+  out[37] = block[24];
+  out[38] = block[25];
+  out[39] = block[26];
+  out[40] = block[27];
+  out[41] = block[28];
+  out[42] = block[27];
+  out[43] = block[28];
+  out[44] = block[29];
+  out[45] = block[30];
+  out[46] = block[31];
+  out[47] = block[0];
+}
+
 /*
 ** DES Fiestel function
 **
 ** @param dest is 32 bit chunk of block
-** @param R is 48 bit chunk of block
+** @param R is 32 bit chunk of block
 ** @param K is 48 bit chunk of the key.
 **
 ** @note input size is 2 48 bits blocks output is one 32 bit block.
@@ -459,52 +510,32 @@ void DES::f( block_t dest, block_t R, block_t K ) {
 
   /* Expand left side to 48 bits to match key */
   uint8_t rpk[48];
-  for ( int i = 0; i < 48; i++ ) {
-    rpk[i] = R[ E[i] - 1 ] xor K[i];
+  expand( R, rpk );
+
+  for( int i = 0; i < 48; ++i ){
+    rpk[i] = rpk[i] ^ K[i];
   }
 
-  // TODO: check to make sure this stuff is right, kind of doubting it
-  //
-  uint8_t a[8][6];
+// For noobs
+  uint8_t B[8][6] = {
+  { rpk[0], rpk[1], rpk[2], rpk[3], rpk[4], rpk[5] },
+  { rpk[6], rpk[7], rpk[8], rpk[9], rpk[10], rpk[11] },
+  { rpk[12], rpk[13], rpk[14], rpk[15], rpk[16], rpk[17] },
+  { rpk[18], rpk[19], rpk[20], rpk[21], rpk[22], rpk[23] },
+  { rpk[24], rpk[25], rpk[26], rpk[27], rpk[28], rpk[29] },
+  { rpk[30], rpk[31], rpk[32], rpk[33], rpk[34], rpk[35] },
+  { rpk[36], rpk[37], rpk[38], rpk[39], rpk[40], rpk[41] },
+  { rpk[42], rpk[43], rpk[44], rpk[45], rpk[46], rpk[47] } };
 
-  int k = 0;
-  for(int i = 0; i < 8; i++) {
-    for(int j = 0; j < 6; j++) {
-      a[i][j]= rpk[k++];
-    }
+  for( int i = 0; i < 8; ++i ){
+    uint8_t m = B[i][0] * 2 + B[i][5];
+    uint8_t n = B[i][1] * 8 + B[i][2] * 4 + B[i][3] * 2 + B[i][4];
+    dest[i*4] = DES::get( SP[i][m][n], 3 );
+    dest[i*4+1] = DES::get( SP[i][m][n], 2 );
+    dest[i*4+2] = DES::get( SP[i][m][n], 1 );
+    dest[i*4+3] = DES::get( SP[i][m][n], 0 );
   }
-
-  int g = 0;
-  for( int i = 0; i < 8; i++ ) {
-          int q = 0;
-          int k = ( a[i][0] * 2 ) + ( a[i][5] * 1 );
-
-          {
-            int p = 1;
-            int j = 4;
-            while( j > 0 ) {
-              q = q + ( a[i][j] * p );
-              p = p * 2;
-              j--;
-            }
-          }
-
-          int v = SP[i][k][q];
-
-          int j = 3, b[4];
-          while( v > 0 ) {
-            b[j--] = v % 2;;
-            v = v/2;
-          }
-          while(j >= 0)
-          {
-                  b[j--]=0;
-          }
-
-          for( int t = 0; t < 4; t++ ) {
-            dest[g++] = b[i];
-          }
-  }
+// End For noobs
 
   /*
   ** Sbox only cares about 6 of 8 bits.
