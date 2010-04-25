@@ -516,22 +516,13 @@ void DES::f( block_t dest, block_t R, block_t K ) {
     rpk[i] = rpk[i] ^ K[i];
   }
 
-  /* Create B0 - B7, each 6 bits of rpk */
-  uint8_t B[8][6] = {
-  { rpk[0], rpk[1], rpk[2], rpk[3], rpk[4], rpk[5] },
-  { rpk[6], rpk[7], rpk[8], rpk[9], rpk[10], rpk[11] },
-  { rpk[12], rpk[13], rpk[14], rpk[15], rpk[16], rpk[17] },
-  { rpk[18], rpk[19], rpk[20], rpk[21], rpk[22], rpk[23] },
-  { rpk[24], rpk[25], rpk[26], rpk[27], rpk[28], rpk[29] },
-  { rpk[30], rpk[31], rpk[32], rpk[33], rpk[34], rpk[35] },
-  { rpk[36], rpk[37], rpk[38], rpk[39], rpk[40], rpk[41] },
-  { rpk[42], rpk[43], rpk[44], rpk[45], rpk[46], rpk[47] } };
-
   for( int i = 0; i < 8; ++i ){
+    /* Identify block of rpk (each block is 6 bits) */
+    uint8_t block = i * 6;
     /* Bits 0 and 5 make index m */
-    uint8_t m = B[i][0] * 2 + B[i][5];
+    uint8_t m = rpk[block] * 2 + rpk[block + 5];
     /* Bits 1-4 make index n */
-    uint8_t n = B[i][1] * 8 + B[i][2] * 4 + B[i][3] * 2 + B[i][4];
+    uint8_t n = rpk[block + 1] * 8 + rpk[block + 2] * 4 + rpk[block + 3] * 2 + rpk[block + 4];
 
     /* Index from the S-Functions and store resulting bits into the answer */
     dest[i*4] = DES::get( SP[i][m][n], 3 );
