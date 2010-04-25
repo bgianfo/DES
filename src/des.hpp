@@ -83,10 +83,10 @@ class DES {
     uint8_t scheduled_keys[16][48];
 
     /* Encrypted cipher text */
-    block_t ciphertext;
+    uint8_t* ciphertext;
 
     /* Decrypted plain text */
-    block_t plaintext;
+    uint8_t* plaintext;
 
     /* DES Fiestal function */
     void f( block_t dest, block_t R, block_t K );

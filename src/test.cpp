@@ -15,7 +15,7 @@ TEST( f_function, Test ){
   uint8_t dum[64];
   DES dummy( dum, dum );
 
-  uint8_t ans[32] = { 0,1,0,1, 1,1,0,0, 1,0,0,0, 0,0,1,0, 1,0,1,1, 0,1,0,1, 1,0,0,1, 0,1,1,1 };
+  uint8_t ans[32] = { 0,0,1,0,0,0,1,1,0,1,0,0,1,0,1,0,1,0,1,0,1,0,0,1,1,0,1,1,1,0,1,1 };
   uint8_t dest[32];
   uint8_t R[48] = { 1,1,1,1,0,0,0,0,1,0,1,0,1,0,1,0,1,1,1,1,0,0,0,0,1,0,1,0,1,0,1,0 };
   uint8_t K[48] = {0,0,0,1,1,0,1,1,0,0,0,0,0,0,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,0,0,0,0,0,1,1,1,0,0,1,0};
@@ -134,7 +134,7 @@ TEST( DESutil, strtoblk ) {
 
 
 }
-/*
+
 TEST( DESAlgo, Encrypt ) {
 
   char key[8] = "0123456";
@@ -157,7 +157,7 @@ TEST( DESAlgo, Encrypt ) {
   char ciphertext[] = {
     0x66,0x27,0x01,0x97,0x92,0x4E,0x36,0x2E
   };
-  char ciphertext[] = "85E813540F0AB405";
+//  char ciphertext[] = "85E813540F0AB405";
 
   for( int i = 0; i < 8; i++ ) {
       printf("%02X  == %02X\n", (unsigned char)dest[i] , (unsigned char)ciphertext[i] );
@@ -167,7 +167,7 @@ TEST( DESAlgo, Encrypt ) {
   }
 
 }
-*/
+
 
 int main( int argc, char **argv ) {
 

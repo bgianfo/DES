@@ -349,12 +349,9 @@ void DES::algorithm( const action_t action ) {
     uint8_t fblck[32];
     DES::f( fblck, r, this->scheduled_keys[this->round] );
 
-    uint8_t permutedfblk[32];
-    this->primative( fblck, permutedfblk );
-
     /* R = L ^ f(R,K) */
     for ( int j = 0; j < 32; j++ ) {
-      r[j] =  l[j] ^ permutedfblk[j];
+      r[j] =  l[j] ^ fblck[j];
     }
 
     /* Swap l and saved r for the next round */
@@ -527,11 +524,13 @@ void DES::f( block_t dest, block_t R, block_t K ) {
     uint8_t n = rpk[block + 1] * 8 + rpk[block + 2] * 4 + rpk[block + 3] * 2 + rpk[block + 4];
 
     /* Index from the S-Functions and store resulting bits into the answer */
-    dest[i*4] = DES::get( SP[i][m][n], 3 );
-    dest[i*4+1] = DES::get( SP[i][m][n], 2 );
-    dest[i*4+2] = DES::get( SP[i][m][n], 1 );
-    dest[i*4+3] = DES::get( SP[i][m][n], 0 );
+    rpk[i*4] = DES::get( SP[i][m][n], 3 );
+    rpk[i*4+1] = DES::get( SP[i][m][n], 2 );
+    rpk[i*4+2] = DES::get( SP[i][m][n], 1 );
+    rpk[i*4+3] = DES::get( SP[i][m][n], 0 );
   }
+
+  primative( rpk, dest );
 }
 
 
