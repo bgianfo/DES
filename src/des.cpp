@@ -39,8 +39,8 @@ DES::DES( block_t block , block_t key ) {
   assert( block != NULL );
   assert( key != NULL );
 
-  this->block = (uint8_t*) malloc(sizeof(uint8_t)*BKSIZE);
-  this->key = (uint8_t*) malloc(sizeof(uint8_t)*BKSIZE);
+  this->block = new uint8_t[BKSIZE];
+  this->key = new uint8_t[BKSIZE];
 
   memcpy( this->block, block, BKSIZE );
   memcpy( this->key, key, BKSIZE );
@@ -56,15 +56,15 @@ DES::DES( block_t block , block_t key ) {
 
 DES::~DES( void ) {
 
-  free(this->block);
-  free(this->key);
+  delete[] this->block;
+  delete[] this->key;
 
   if ( this->ciphertext != NULL ) {
-    free(this->ciphertext);
+    delete[] this->ciphertext;
   }
 
   if ( this->plaintext != NULL ) {
-    free(this->plaintext);
+    delete[] this->plaintext;
   }
 }
 
@@ -349,9 +349,12 @@ void DES::algorithm( const action_t action ) {
     uint8_t fblck[32];
     DES::f( fblck, r, this->scheduled_keys[this->round] );
 
+    uint8_t permutedfblk[32];
+    this->primative( fblck, permutedfblk );
+
     /* R = L ^ f(R,K) */
     for ( int j = 0; j < 32; j++ ) {
-      r[j] =  l[j] ^ fblck[ P[j] - 1 ];
+      r[j] =  l[j] ^ permutedfblk[j];
     }
 
     /* Swap l and saved r for the next round */
@@ -511,7 +514,6 @@ void DES::f( block_t dest, block_t R, block_t K ) {
   /* Expand left side to 48 bits to match key */
   uint8_t rpk[48];
   expand( R, rpk );
-
   for( int i = 0; i < 48; ++i ){
     rpk[i] = rpk[i] ^ K[i];
   }
@@ -702,7 +704,7 @@ void DES::keyschedule( void ) {
   uint8_t C[56];
   uint8_t *D = C + 28;
 
-  /* 
+  /*
   ** Generate both halves of the permutation on the key.
   ** Discarding the lowest order bit of every byte.
   */
@@ -721,8 +723,8 @@ void DES::keyschedule( void ) {
 
       uint8_t tc0 = C[0];
       uint8_t td0 = D[0];
-      
-      for ( int k = 0; k < 27; k++ ) { 
+
+      for ( int k = 0; k < 27; k++ ) {
         C[k] = C[k+1];
         D[k] = D[k+1];
       }
@@ -733,7 +735,7 @@ void DES::keyschedule( void ) {
 
     uint8_t C2[56];
     this->permutation_two( C, C2 );
-    /* Copy over this rounds key */ 
+    /* Copy over this rounds key */
     for ( int j = 0; j < 48; j++ ) {
       /* Of the each 28 bit half only take 24 bits */
       this->scheduled_keys[i][j]  =  C2[ j ];

@@ -71,10 +71,10 @@ class DES {
     */
 
     /* Data block 64 long */
-    block_t block;
+    uint8_t* block;
 
     /* Data key block 64 long */
-    block_t key;
+    uint8_t* key;
 
     /* Data key current round of cipher */
     uint8_t round;
