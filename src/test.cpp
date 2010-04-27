@@ -1,7 +1,12 @@
-
-/**
- * Test suite
- */
+/*
+**
+**  DES Test suite:
+**
+**  Authors:
+**      Sam Milton        (srm2997@cs.rit.edu)
+**      Brian Gianforcaro (bjg1955@cs.rit.edu)
+**
+*/
 
 #define UNITTEST 1
 
