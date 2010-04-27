@@ -11,11 +11,14 @@
 
 CXX = g++
 #CXX = clang++
-CFLAGS = -g3 -pg -Wall -Wextra -ansi -pedantic
-#CFLAGS =  -Wall -Wextra -O2
+DEVLCFLAGS = -g3 -pg -Wall -Wextra -ansi -pedantic
+DISTCFLAGS = -Wall -Wextra -O2 -fomit-frame-pointer
+
+CFLAGS = $(DISTCFLAGS)
+#CFLAGS = $(DEVLCFLAGS)
 LFLAGS =
 
-default: encrypt decrypt tester test
+default: encrypt decrypt
 
 encrypt: encrypt.cpp des.hpp des.cpp
 	$(CXX) $(LFLAGS) $(CFLAGS) des.cpp encrypt.cpp -o encrypt
