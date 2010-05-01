@@ -1,6 +1,6 @@
 /*
 **  File: des.hpp
-**
+*
 **  Authors: 
 ** 
 **     Sam Milton        (srm2997@cs.rit.edu)
@@ -8,8 +8,8 @@
 **
 */
 
-#ifndef _DES_H_
-#define _DES_H_
+#ifndef _DES_HPP_
+#define _DES_HPP_
 
 #include <stdint.h>
 
@@ -112,7 +112,7 @@ class DES {
   public:
 
     /* Constructor */
-    DES( block_t block , block_t key );
+    DES( uint8_t* block , uint8_t* key );
 
     /* Destructor */
     ~DES( void );
@@ -133,10 +133,10 @@ class DES {
     static bool get( uint8_t data, const int bit );
 
     /* Set the nth bit of a integer */
-    static void on( block_t data, const int bit );
+    static void on( uint8_t* data, const int bit );
 
     /* Un-set the nth bit of a integer */
-    static void off( block_t data, const int bit );
+    static void off( uint8_t* data, const int bit );
 
 };
 
