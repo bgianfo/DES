@@ -40,3 +40,4 @@ clean:
 	rm -rf encrypt.dSYM
 	rm -rf tester.dSYM
 	rm -rf *.o
+	clear

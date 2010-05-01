@@ -34,7 +34,7 @@ using namespace std;
 **
 */
 
-DES::DES( block_t block , block_t key ) {
+DES::DES( uint8_t* block , uint8_t* key ) {
 
   assert( block != NULL );
   assert( key != NULL );
