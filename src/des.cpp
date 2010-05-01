@@ -654,7 +654,7 @@ void DES::sttoblk( block_t blk, char* str ) {
 */
 
 void DES::blktostr( block_t blk, char* str ) {
-
+  memset( str, 0, 8 );
   for (int i = 0; i < 8; i++ ) {
 
     int j = i*8;
