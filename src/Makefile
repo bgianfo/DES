@@ -14,8 +14,8 @@ CXX = g++
 DEVLCFLAGS = -g3 -pg -Wall -Wextra -ansi -pedantic
 DISTCFLAGS = -Wall -Wextra -O2 -fomit-frame-pointer
 
-CFLAGS = $(DISTCFLAGS)
-#CFLAGS = $(DEVLCFLAGS)
+#CFLAGS = $(DISTCFLAGS)
+CFLAGS = $(DEVLCFLAGS)
 LFLAGS =
 
 default: encrypt decrypt

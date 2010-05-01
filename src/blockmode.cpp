@@ -10,6 +10,12 @@
 **
 **  Implementation of all the block modes for DES.
 */
+
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <cassert>
+#include <stdint.h>
 #include <iostream>
 #include <fstream>
 
@@ -34,6 +40,7 @@ void BLOCKMODE::encrypt( char file[], char outfile[], char key[] ) {
   char obuffer[BUFFSIZE];
 
   uint8_t keyblock[BKSIZE];
+  uint8_t inblock[BKSIZE];
 
   DES::sttoblk( keyblock, key );
 
@@ -46,11 +53,10 @@ void BLOCKMODE::encrypt( char file[], char outfile[], char key[] ) {
 
 
   int padding;
-  uint8_t inblock[BKSIZE];
-  printf("Got to while");
   while( (padding = 8 - infile.readsome( buffer, BUFFSIZE ) ) == 0 ){
-    printf("\n");
 
+    printf("\n");
+    memset( inblock, 0, 8 );
     DES::sttoblk( inblock, buffer );
 
     DES cipher( inblock, keyblock );
@@ -59,14 +65,13 @@ void BLOCKMODE::encrypt( char file[], char outfile[], char key[] ) {
 
     uint8_t* out = cipher.cipherText();
 
+    memset( obuffer, 0, 8 );
     DES::blktostr( out, obuffer );
 
     for (int i = 0; i < 8; i++ ) {
-      printf("%c",obuffer[i]);
-
+      printf("%d ", obuffer[i]);
     }
     ofile.write( obuffer, BUFFSIZE );
-
   }
 
   printf("\n");
@@ -78,6 +83,7 @@ void BLOCKMODE::encrypt( char file[], char outfile[], char key[] ) {
       buffer[7-i] = 0;
     }
   }
+
   DES::sttoblk( inblock, buffer );
   DES cipher( inblock, keyblock );
   cipher.encrypt();
