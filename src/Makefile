@@ -20,14 +20,14 @@ LFLAGS =
 
 default: encrypt decrypt
 
-encrypt: encrypt.cpp des.hpp des.cpp
-	$(CXX) $(LFLAGS) $(CFLAGS) des.cpp encrypt.cpp -o encrypt
+encrypt: encrypt.cpp des.hpp des.cpp blockmode.cpp blockmode.hpp
+	$(CXX) -o encrypt $(LFLAGS) $(CFLAGS) des.cpp encrypt.cpp blockmode.cpp
 
-decrypt: decrypt.cpp des.hpp des.cpp
-	$(CXX) -o decrypt $(LFLAGS) $(CFLAGS) des.cpp decrypt.cpp
+decrypt: decrypt.cpp des.hpp des.cpp blockmode.cpp blockmode.hpp
+	$(CXX) -o decrypt $(LFLAGS) $(CFLAGS) des.cpp decrypt.cpp blockmode.cpp
 
-tester: test.cpp des.hpp des.cpp
-	$(CXX) -o tester $(LFLAGS) -lgtest $(CFLAGS) -DUNITTEST des.cpp test.cpp
+tester: test.cpp des.hpp des.cpp blockmode.cpp blockmode.hpp
+	$(CXX) -o tester $(LFLAGS) -lgtest $(CFLAGS) -DUNITTEST blockmode.cpp des.cpp test.cpp
 
 test: tester
 	./tester

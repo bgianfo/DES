@@ -14,34 +14,16 @@
 
 int main( ) {
 
-  char key[17] = "01334567";
-  char msg[17] = "01234567";
+  uint8_t msg[64] = { 0,0,0,0,0,0,0,1,0,0,1,0,0,0,1,1,0,1,0,0,0,1,0,1,
+                      0,1,1,0,0,1,1,1,1,0,0,0,1,0,0,1,1,0,1,0,1,0,1,1,
+                      1,1,0,0,1,1,0,1,1,1,1,0,1,1,1,1 };
 
-  //printf( "Encrypting: %s\n", msg );
-  //printf( "With Key: %s\n", key );
+  uint8_t key[64] = { 0,0,0,1,0,0,1,1,0,0,1,1,0,1,0,0,0,1,0,1,0,1,1,1,0,1,1,1,1,0,0,1,1,0,0,1,1,0,1,1,1,0,1,1,1,1,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,1};
 
-  uint8_t kblck[64];
-  uint8_t mblck[64];
-
-  DES::sttoblk( kblck, key );
-  DES::sttoblk( mblck, msg );
-
-  char dest[8] = {
-    0, 0, 0, 0, 0, 0, 0, '\0'
-  };
-
-  for ( int i = 0; i < 3000000; i++ ) {
-    DES cipher( mblck, kblck );
+  for ( int i = 0; i < 1000000; i++ ) {
+    DES cipher( msg, key );
     cipher.encrypt();
-    DES::blktostr( cipher.cipherText(), dest );
   }
-
-  /*printf( "Cipher: ");
-
-  for( int i = 0; i < 7; i++ ) {
-    printf( "%c",(unsigned char) dest[i] );
-  }
-  */
 
   return 0;
 }
