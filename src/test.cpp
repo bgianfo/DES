@@ -137,26 +137,33 @@ TEST( DesBitOps, Off ) {
 
 TEST( DESutil, strtoblk ) {
 
-  /*
-  char msg[8] = "0123456";
+  char msg[9] = "01234567";
 
-  uint8_t* output1 = new uint8_t[56];
+  uint8_t expected[] = {0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,1,0,0,1,1,0,0,1,0,0,0,1,1,0,0,1,1,0,0,1,1,0,1,0,0,0,0,1,1,0,1,0,1,0,0,1,1,0,1,1,0,0,0,1,1,0,1,1,1};
+
+  uint8_t* output1 = new uint8_t[64];
 
   DES::sttoblk( output1, msg );
 
-  char outmsg[8];
-  outmsg[8] = '\0';
-
-  memset(outmsg, 0, 8 );
-
-  DES::blktostr( output1, outmsg );
-
-  for (int i = 0; i < 7; i++ ) {
-    ASSERT_TRUE( outmsg[i] == msg[i] );
+  for (int i = 0; i < 8; i++ ) {
+    ASSERT_TRUE( expected[i] == output1[i] );
   }
-  */
 
 
+}
+
+TEST( DESutil, blktostr ) {
+  char expected[9] = "01234567";
+
+  uint8_t in[] = {0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,1,0,0,1,1,0,0,1,0,0,0,1,1,0,0,1,1,0,0,1,1,0,1,0,0,0,0,1,1,0,1,0,1,0,0,1,1,0,1,1,0,0,0,1,1,0,1,1,1};
+
+  char outmsg[8];
+
+  DES::blktostr( in, outmsg );
+
+  for (int i = 0; i < 8; i++ ) {
+    ASSERT_TRUE( expected[i] == outmsg[i] );
+  }
 }
 
 TEST( DESAlgo, Encrypt ) {
