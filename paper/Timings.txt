@@ -1,0 +1,43 @@
+Timing Tests (1 million encryptions)
+Unoptimized:
+Round1:
+real	0m10.856s
+user	0m10.853s
+sys	0m0.000s
+
+Round2:
+real	0m10.885s
+user	0m10.881s
+sys	0m0.000s
+
+Round3:
+real	0m10.912s
+user	0m10.909s
+sys	0m0.000s
+
+Average:
+real	0m10.884s
+user	0m10.881s
+sys	0m0.000s
+
+
+Optimized:
+Round1:
+real	0m5.987s
+user	0m5.984s
+sys	0m0.000s
+
+Round2:
+real	0m6.021s
+user	0m6.012s
+sys	0m0.004s
+
+Round3:
+real	0m6.014s
+user	0m6.012s
+sys	0m0.000s
+
+Average:
+real	0m6.007s
+user	0m18.008s
+sys	0m0.001s
