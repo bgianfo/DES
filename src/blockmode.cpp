@@ -24,6 +24,8 @@ using namespace std;
 #include "blockmode.hpp"
 #include "des.hpp"
 
+const bool DEBUG = false;
+
 BLOCKMODE::BLOCKMODE( ) {
 
 }
@@ -44,44 +46,49 @@ void BLOCKMODE::encrypt( char file[], char outfile[], char key[] ) {
 
   DES::sttoblk( keyblock, key );
 
-
+  // Files for reading / writing
   ifstream infile;
-  infile.open( file, ios::binary );
+  infile.open( file, ios::binary | ios::in | ios::ate );
 
   ofstream ofile;
-  ofile.open( outfile, ofstream::binary );
+  ofile.open( outfile, ofstream::binary | ios::out );
 
 
-  int padding;
-  while( (padding = 8 - infile.readsome( buffer, BUFFSIZE ) ) == 0 ){
+  int size = infile.tellg();   // Size of file
+  infile.seekg( 0, ios::beg );
+  int padding = 8 - (size % 8);// Amount of padding needed
+  if( padding == 0 )
+    padding = 8; // Padding cannot be 0 (pad full block)
 
-    printf("\n");
-    memset( inblock, 0, 8 );
+  // Loop through all full blocks (8 bytes) of file
+  for( int i = 0; i < size / 8; ++i ){
+    infile.read( buffer, 8 );
+
     DES::sttoblk( inblock, buffer );
 
     DES cipher( inblock, keyblock );
 
     cipher.encrypt();
 
-    uint8_t* out = cipher.cipherText();
+    DES::blktostr( cipher.cipherText(), obuffer );
 
-    memset( obuffer, 0, 8 );
-    DES::blktostr( out, obuffer );
-
-    for (int i = 0; i < 8; i++ ) {
-      printf("%d ", obuffer[i]);
+    if( DEBUG ){
+      for (int i = 0; i < 8; i++ ) {
+        printf("%02X ", obuffer[i] & 255 );
+      }
+      printf( "\n" );
     }
     ofile.write( obuffer, BUFFSIZE );
   }
 
-  printf("\n");
+  // Read remaing part of file
+  if( padding != 8 )
+    infile.read( buffer, 8 - padding );
 
-  for (int i = 0; i < padding; i++ ) {
-    if ( i+1 == padding ) {
-      buffer[7-i] = 1;
-    } else {
-      buffer[7-i] = 0;
-    }
+  // Pad block with a 1 followed by 0s
+  buffer[8 - padding] = 1;
+  for (int i = 1; i < padding; i++ ) {
+      buffer[8 - i] = 0;
   }
 
   DES::sttoblk( inblock, buffer );
@@ -89,15 +96,15 @@ void BLOCKMODE::encrypt( char file[], char outfile[], char key[] ) {
   cipher.encrypt();
   uint8_t* out = cipher.cipherText();
   DES::blktostr( out, obuffer );
-  for (int i = 0; i < 8; i++ ) {
-    printf("%c",obuffer[i]);
-
+  if( DEBUG ){
+    for (int i = 0; i < 8; i++ ) {
+      printf("%02X ",obuffer[i] & 255 );
+    }
+      printf( "\n" );
   }
   ofile.write( obuffer, BUFFSIZE );
-
   infile.close();
   ofile.close();
-
 }
 
 
@@ -111,19 +118,22 @@ void BLOCKMODE::decrypt( char file[], char outfile[], char key[] ) {
 
   DES::sttoblk( keyblock, key );
 
-
+  // Files for reading / writing
   ifstream infile;
-  infile.open( file, ios::binary );
+  infile.open( file, ios::binary | ios::in | ios::ate );
 
   ofstream ofile;
-  ofile.open( outfile, ofstream::binary );
+  ofile.open( outfile, ofstream::binary | ios::out );
 
 
-  int padding;
-  uint8_t inblock[BKSIZE];
-  printf("Got to while");
-  while( (padding = 8 - infile.readsome( buffer, BUFFSIZE ) ) == 0 ){
-    printf("\n");
+  int size = infile.tellg(); // Size of file
+  int padding = 0;           // Amount of padding on file
+  uint8_t inblock[BKSIZE];   
+  infile.seekg( 0, ios::beg );
+
+  // Loop through all but last block (8 bytes) of file
+  for( int i = 0; i + 1 < size / 8; ++i ){
+    infile.read( buffer, 8 );
 
     DES::sttoblk( inblock, buffer );
 
@@ -135,33 +145,38 @@ void BLOCKMODE::decrypt( char file[], char outfile[], char key[] ) {
 
     DES::blktostr( out, obuffer );
 
-    for (int i = 0; i < 8; i++ ) {
-      printf("%c",obuffer[i]);
-
-    }
     ofile.write( obuffer, BUFFSIZE );
 
-  }
-
-  printf("\n");
-
-  for (int i = 0; i < padding; i++ ) {
-    if ( i+1 == padding ) {
-      buffer[7-i] = 1;
-    } else {
-      buffer[7-i] = 0;
+    if( DEBUG ){
+      for (int i = 0; i < 8; i++ ) {
+        printf("%02X ", obuffer[i] & 255 );
+      }
+      printf( "\n" );
     }
   }
+
+  // Read last line of file
+  infile.read( buffer, 8 );
+
   DES::sttoblk( inblock, buffer );
   DES cipher( inblock, keyblock );
-  cipher.encrypt();
-  uint8_t* out = cipher.cipherText();
+  cipher.decrypt();
+  uint8_t* out = cipher.plainText();
   DES::blktostr( out, obuffer );
-  for (int i = 0; i < 8; i++ ) {
-    printf("%c",obuffer[i]);
 
+  // Check for and record padding on end
+  for( int i = 0; obuffer[7-i] == 0; ++i ){
+    ++padding;
   }
-  ofile.write( obuffer, BUFFSIZE );
+  ++padding;
+  if( DEBUG ){
+    for (int i = 0; i < 8; i++ ) {
+      printf("%02X ", obuffer[i] & 255 );
+    }
+    printf( "\n" );
+  }
+  if( padding != 8 )
+    ofile.write( obuffer, BUFFSIZE - padding );
 
   infile.close();
   ofile.close();
