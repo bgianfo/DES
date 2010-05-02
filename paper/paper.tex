@@ -11,45 +11,105 @@ Brian Gianforcaro \and Sam Milton \\
 
 \usepackage{graphicx}
 \usepackage{multicol}
-\usepackage{mdwlist}
-\usepackage{amssymb,amsmath}
-\usepackage{cite}
-\usepackage[bookmarks=false,colorlinks=true,linkcolor={blue},pdfstartview={XYZ null null 1.22}]{hyperref}
-\usepackage{url}
-\usepackage[T1]{fontenc}
 
+\usepackage{acronym}
+ \usepackage[bookmarks=false,colorlinks=false,linkcolor={black},pdfstartview={XYZ null null 1.22}]{hyperref}
+\usepackage{url}
+
+\acrodef{DES}[DES]{Data Encryption Standard}
+\acrodef{TDD}[TDD]{Test Driven Development}
+\acrodef{OOP}[OOP]{Object Oriented Programming}
 
 \begin{document}
+
 \maketitle
 
 \begin{abstract}
-DES (Data Encryption Standard) is the 56-bit block cipher that was once used to encrypt all US Goverment non-classified documents. 
+  \ac{DES} is the 56-bit block cipher that was once used to encrypt all US Government non-classified documents.
 \end{abstract}
 
-\newpage      
-\section{The Cryptographic Primative}
+\newpage
+\section{The Cryptographic Primitive}
 
 \section{Examples}
 \section{Software Design}
-\section{Original Runtime Measurements}
-\section{Original Runtime Analysis}
+
+We chose to implement DES completely in $C++$ for this project.
+Both of the members our group were knowledgeable and comfortable
+with $C++$ and in general the $C$ world. We felt we would have a more
+generally usable and useful implementation if we went with $C++$ over
+another language (Java, Python, ... ). We attempted to take advantage ac{OOP} but
+were careful not to over do it and dive into downword spiral subclass's and
+analysing of class cohesion. The $DES$ implementation is simply a class, with actions of encrypting and
+decrypting. All state information is organized within the class. We then
+implemented a $BlockMode$ class which implements a cipher block, which is
+as you know, just a wrapper around $DES$. The user is then provided with
+two small utility functions $encrypt$ \and $decrypt$.
+
+The general ideology of this first pass is that we want the code to be clean and correct.
+We are not putting too much thought into optimization and efficiency. We are very familiar
+with the old Donal Knuth quote:
+
+
+   "We should forget about small efficiencies, say about 97\% of the time: premature optimization is the root of all evil"
+
+
+During the duration of the project we attempted to work in a \ac{TDD} model.
+All major functions and actions have associated unit-tests which we derived from various peices of
+literature on DES. These unit test's were then hooked up to run using the Google Test Framework\cite{gtest}.
+
+\section{Original Run time Measurements}
+\section{Original Run time Analysis}
 \section{Revised Software design}
-\section{Revised Runtime Measurements}
-\section{Revised Runtime Analysis}
+\section{Revised Run time Measurements}
+\section{Revised Run time Analysis}
 \section{Developers manual}
 \section{Users Manual}
-\section{ What we learned }
+
+\begin{verbatim}
+
+  Usage: ./encrypt_opt <infile> <outfile> <key>
+
+    <infile>  - The file you wish to encrypt
+    <outfile> - The resulting encrypted file
+    <key>     - 8 character string for your key
+
+  OR
+
+  Usage: ./encrypt_orig <infile> <outfile> <key>
+
+    <infile>  - The file you wish to encrypt
+    <outfile> - The resulting encrypted file
+    <key>     - 8 character string for your key
+
+
+\end{verbatim}
+
+\begin{verbatim}
+
+  Usage: ./decrypt_opt <infile> <outfile> <key>
+
+    <infile>  - The file you wish to decrypt
+    <outfile> - The resulting decrypted file
+    <key>     - 8 character string for your key
+
+  OR
+
+  Usage: ./decrypt_orig <infile> <outfile> <key>
+
+    <infile>  - The file you wish to decrypt
+    <outfile> - The resulting decrypted file
+    <key>     - 8 character string for your key
+
+\end{verbatim}
+
+\section{What we learned}
 \section{Future Work}
 \section{Team Member Work}
 \section{References}
+
 \begin{thebibliography}{99}
-\bibitem{python}{\href{ http://python.org }{ http://python.org }}
-\bibitem{wiki} {\href{ http://en.wikipedia.org/wiki/Latitude_and_longitude_of_cities }{ http://en.wikipedia.org/wiki/Latitude\_and\_longitude\_of\_cities }}
-\bibitem{tsp} Montgomery, John {\it Tackling The Traveling Salesman Problem }{\href{ http://www.psychicorigami.com/category/tsp/ }{ http://www.psychicorigami.com/category/tsp/ } }, {\bf 2007}
-\bibitem{google} {\href{ http://code.google.com/apis/maps/documentation/staticmaps/  }{ http://code.google.com/apis/maps/documentation/staticmaps/ }}
-\bibitem{sa}{\href{ http://www.svengato.com/salesman.html }{ http://www.svengato.com/salesman.html }}
-\bibitem{dis}{\href{ http://www.geesblog.com/2009/01/calculating-distance-between-latitude-longitude-pairs-in-python/ }{ http://www.geesblog.com/2009/01/calculating-distance-between-latitude-longitude-pairs-in-python/ }}
-\bibitem{LHK}{\href{ http://www.akira.ruc.dk/~keld/research/LKH/ }{ http://www.akira.ruc.dk/~keld/research/LKH/ }}
+  \bibitem{gtest}{ \href{ http://code.google.com/p/googletest/ }{Google Unit Testing Framework}}
 \end{thebibliography}
 
 \end{document}

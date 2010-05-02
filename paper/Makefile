@@ -3,7 +3,7 @@ CONVERT_DVI=dvipdf
 default: paper open
 
 open:
-	open paper.pdf
+	xpdf paper.pdf
 
 paper: paper.tex
 	$(LATEX) paper.tex

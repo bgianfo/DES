@@ -10,12 +10,11 @@
 ##########################################################
 
 CXX = g++
-#CXX = clang++
 DEVLCFLAGS = -g3 -pg -Wall -Wextra -ansi -pedantic
-DISTCFLAGS = -Wall -Wextra -O3 -fomit-frame-pointer
+DISTCFLAGS = -Wall -Wextra -O2 -fomit-frame-pointer
 
-CFLAGS = $(DISTCFLAGS)
-#CFLAGS = $(DEVLCFLAGS)
+#CFLAGS = $(DISTCFLAGS)
+CFLAGS = $(DEVLCFLAGS)
 LFLAGS =
 
 default: encrypt decrypt encrypt_opt decrypt_opt
@@ -35,9 +34,9 @@ decrypt_opt: decrypt.cpp des.hpp des.cpp blockmode.cpp blockmode.hpp
 
 tester: test.cpp des.hpp des.cpp blockmode.cpp blockmode.hpp performance.cpp
 	$(CXX) -o tester_orig $(LFLAGS) -lgtest $(CFLAGS) -DUNITTEST blockmode.cpp des_original.cpp test.cpp
-	$(CXX) -o perftest_orig $(LFLAGS) $(CFLAGS) des_original.cpp performance.cpp
+	$(CXX) -o perftest_orig $(LFLAGS) $(CFLAGS)  -DUNITTEST des_original.cpp performance.cpp
 	$(CXX) -o tester_opt $(LFLAGS) -lgtest $(CFLAGS) -DUNITTEST -DDESOPTIMIZED blockmode.cpp des.cpp test.cpp
-	$(CXX) -o perftest_opt $(LFLAGS) $(CFLAGS) -DDESOPTIMIZED des.cpp performance.cpp
+	$(CXX) -o perftest_opt $(LFLAGS) $(CFLAGS)  -DUNITTEST -DDESOPTIMIZED des.cpp performance.cpp
 
 test: tester
 	./tester_opt
