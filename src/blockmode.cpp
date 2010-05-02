@@ -22,7 +22,12 @@
 using namespace std;
 
 #include "blockmode.hpp"
-#include "des.hpp"
+
+#ifdef DESOPTIMIZED
+  #include "des.hpp"
+#else
+  #include "des_original.hpp"
+#endif
 
 const bool DEBUG = false;
 

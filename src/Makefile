@@ -18,28 +18,42 @@ DISTCFLAGS = -Wall -Wextra -O2 -fomit-frame-pointer
 CFLAGS = $(DEVLCFLAGS)
 LFLAGS =
 
-default: encrypt decrypt
+default: encrypt decrypt encrypt_opt decrypt_opt
 
-encrypt: encrypt.cpp des.hpp des.cpp blockmode.cpp blockmode.hpp
-	$(CXX) -o encrypt $(LFLAGS) $(CFLAGS) des.cpp encrypt.cpp blockmode.cpp
 
-decrypt: decrypt.cpp des.hpp des.cpp blockmode.cpp blockmode.hpp
-	$(CXX) -o decrypt $(LFLAGS) $(CFLAGS) des.cpp decrypt.cpp blockmode.cpp
+encrypt: encrypt.cpp des_original.hpp des_original.cpp blockmode.cpp blockmode.hpp
+	$(CXX) -o encrypt_orig $(LFLAGS) $(CFLAGS) des_original.cpp encrypt.cpp blockmode.cpp
+
+decrypt: decrypt.cpp des_original.hpp des_original.cpp blockmode.cpp blockmode.hpp
+	$(CXX) -o decrypt_orig $(LFLAGS) $(CFLAGS) des_original.cpp decrypt.cpp blockmode.cpp
+
+encrypt_opt: encrypt.cpp des.hpp des.cpp blockmode.cpp blockmode.hpp
+	$(CXX) -o encrypt_opt $(LFLAGS) $(CFLAGS) -DDESOPTIMIZED des.cpp encrypt.cpp blockmode.cpp
+
+decrypt_opt: decrypt.cpp des.hpp des.cpp blockmode.cpp blockmode.hpp
+	$(CXX) -o decrypt_opt $(LFLAGS) $(CFLAGS) -DDESOPTIMIZED des.cpp decrypt.cpp blockmode.cpp
 
 tester: test.cpp des.hpp des.cpp blockmode.cpp blockmode.hpp performance.cpp
-	$(CXX) -o tester $(LFLAGS) -lgtest $(CFLAGS) -DUNITTEST blockmode.cpp des.cpp test.cpp
-	$(CXX) -o perftest $(LFLAGS) $(CFLAGS) des.cpp performance.cpp
+	$(CXX) -o tester_orig $(LFLAGS) -lgtest $(CFLAGS) -DUNITTEST blockmode.cpp des_original.cpp test.cpp
+	$(CXX) -o perftest_orig $(LFLAGS) $(CFLAGS) des_original.cpp performance.cpp
+	$(CXX) -o tester_opt $(LFLAGS) -lgtest $(CFLAGS) -DUNITTEST -DDESOPTIMIZED blockmode.cpp des.cpp test.cpp
+	$(CXX) -o perftest_opt $(LFLAGS) $(CFLAGS) -DDESOPTIMIZED des.cpp performance.cpp
 
 test: tester
-	./tester
+	./tester_opt
+	./tester_orig
 
 clean:
-	rm -rf encrypt
-	rm -rf decrypt
-	rm -rf tester
-	rm -rf perftest
-	rm -rf decrypt.dSYM
-	rm -rf encrypt.dSYM
-	rm -rf tester.dSYM
+	rm -rf tester_opt
+	rm -rf encrypt_opt
+	rm -rf decrypt_opt
+	rm -rf perftest_opt
+	rm -rf tester_orig
+	rm -rf encrypt_orig
+	rm -rf decrypt_orig
+	rm -rf perftest_orig
+	rm -rf decrypt*.dSYM
+	rm -rf encrypt*.dSYM
+	rm -rf tester*.dSYM
 	rm -rf *.o
 	clear
