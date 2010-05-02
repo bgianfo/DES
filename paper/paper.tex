@@ -11,29 +11,90 @@ Brian Gianforcaro \and Sam Milton \\
 
 \usepackage{graphicx}
 \usepackage{multicol}
-
-\usepackage{acronym}
- \usepackage[bookmarks=false,colorlinks=false,linkcolor={black},pdfstartview={XYZ null null 1.22}]{hyperref}
+% \usepackage{acronym}
+\usepackage[bookmarks=false,colorlinks=false,linkcolor={black},pdfstartview={XYZ null null 1.22}]{hyperref}
 \usepackage{url}
 
-\acrodef{DES}[DES]{Data Encryption Standard}
-\acrodef{TDD}[TDD]{Test Driven Development}
-\acrodef{OOP}[OOP]{Object Oriented Programming}
+% \usepackage{mdwlist}
+% \usepackage{amssymb,amsmath}
+% \usepackage{cite}
+% \usepackage[T1]{fontenc}
+
+
+% \acrodef{DES}[DES]{Data Encryption Standard}
+% \acrodef{TDD}[TDD]{Test Driven Development}
+% \acrodef{OOP}[OOP]{Object Oriented Programming}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-  \ac{DES} is the 56-bit block cipher that was once used to encrypt all US Government non-classified documents.
+  {DES} is the 56-bit block cipher that was once used to encrypt all US Government non-classified documents.
 \end{abstract}
 
 \newpage
 \section{The Cryptographic Primitive}
 
 \section{Examples}
-\section{Software Design}
 
+\subsection{Example 1}
+\textit{Hello}
+\\\indent Original:
+\begin{verbatim}
+   48 65 6C 6C 6F 0A
+\end{verbatim}
+\indent Encrypted:
+\begin{verbatim}
+   94 93 81 0E 62 47 30 86
+\end{verbatim}
+
+\subsection{Example 2}
+\textit{World}
+\\\indent Original:
+\begin{verbatim}
+   57 6F 72 6C 64 0A
+\end{verbatim}
+\indent Encrypted:
+\begin{verbatim}
+   24 0B A5 B2 CB C1 F2 8B 
+\end{verbatim}
+
+\subsection{Example 3}
+\textit{Hello World}
+\\\indent Original:
+\begin{verbatim}
+   48 65 6C 6C 6F 20 57 6F
+   72 6C 64 0A
+\end{verbatim}
+\indent Encripted:
+\begin{verbatim}
+   E6 74 22 8A AC 1E 85 ED 
+   B7 3C 26 3C 4B B4 F1 77
+\end{verbatim}
+
+\subsection{Example 4}
+\textit{The quick brown fox jumps over the lazy dog}
+\\\indent Original:
+\begin{verbatim}
+   54 68 65 20 71 75 69 63 
+   6B 20 62 72 6F 77 6E 20 
+   66 6F 78 20 6A 75 6D 70 
+   73 20 6F 76 65 72 20 74 
+   68 65 20 6C 61 7A 79 20 
+   64 6F 67 0A
+\end{verbatim}
+\indent Encrypted:
+\begin{verbatim}
+   09 D1 3F 78 9D C7 66 B7 
+   46 52 A9 9F 57 92 38 65 
+   8B 40 39 1C 21 9E 77 D7 
+   9B 84 62 AF E9 22 25 1D 
+   96 61 A7 22 09 97 2C D2 
+   16 F5 D8 38 E4 FF C6 86
+\end{verbatim}
+	
+\section{Software Design}
 We chose to implement DES completely in $C++$ for this project.
 Both of the members our group were knowledgeable and comfortable
 with $C++$ and in general the $C$ world. We felt we would have a more
@@ -54,15 +115,33 @@ with the old Donal Knuth quote:
    "We should forget about small efficiencies, say about 97\% of the time: premature optimization is the root of all evil"
 
 
-During the duration of the project we attempted to work in a \ac{TDD} model.
+During the duration of the project we attempted to work in a {TDD} model.
 All major functions and actions have associated unit-tests which we derived from various peices of
 literature on DES. These unit test's were then hooked up to run using the Google Test Framework\cite{gtest}.
 
-\section{Original Run time Measurements}
-\section{Original Run time Analysis}
+\section{Original Runtime Measurements}
+\paragraph{}Each test consisted of 1,000,000 encryptions of the message 123456789ABCDEF and key 133457799BBCDFF1. They were performed on a 1.8 Ghz Core2Duo computer running Ubuntu 10.04.
+\\Test 1:
+\\ \indent 10.856 seconds
+\\Test 2:
+\\ \indent 10.885 seconds
+\\Test 3:
+\\ \indent 10.912 seconds
+\\\\Average:
+\\ \indent 10.884 seconds
+\section{Original Runtime Analysis}
 \section{Revised Software design}
-\section{Revised Run time Measurements}
-\section{Revised Run time Analysis}
+\section{Revised Runtime Measurements}
+\paragraph{}Each test consisted of 1,000,000 encryptions of the message 123456789ABCDEF and key 133457799BBCDFF1. They were performed on a 1.8 Ghz Core2Duo computer running Ubuntu 10.04.
+\\Test 1:
+\\ \indent 5.294 seconds
+\\Test 2:
+\\ \indent 5.321 seconds
+\\Test 3:
+\\ \indent 5.385 seconds
+\\\\Average:
+\\ \indent 5.333 seconds
+\section{Revised Runtime Analysis}
 \section{Developers manual}
 \section{Users Manual}
 
