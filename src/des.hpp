@@ -45,24 +45,6 @@ class DES {
     /* Number of shifts for each round */
     static uint8_t SHIFTS[ROUNDS];
 
-    /* Primitive function P pg: 22 of DES spec */
-    static uint8_t P[(BKSIZE/2)];
-
-    /* Primitive function E */
-    static uint8_t E[48];
-
-    /* Permeated choice #1 pg: 23 of DES spec */
-    static uint8_t PC1[56];
-
-    /* Permeated choice #2 pg: 23 of DES spec */
-    static uint8_t PC2[48];
-
-    /* Initial permutation pg: 14 */
-    static uint8_t IP[BKSIZE];
-
-    /* Final permutation, or IP prime pg: 14 */
-    static uint8_t IPP[BKSIZE];
-
     /* All S-Boxes 1-8 */
     static uint8_t SP[8][4][16];
 
@@ -80,7 +62,7 @@ class DES {
     uint8_t round;
 
     /* All scheduled key's */
-    uint8_t scheduled_keys[16][48];
+    uint8_t scheduled_keys[ROUNDS][48];
 
     /* Encrypted cipher text */
     uint8_t* ciphertext;
@@ -97,17 +79,9 @@ class DES {
     /* Main entry point to DES cipher */
     void algorithm( action_t action );
 
-    void primative( uint8_t block[], uint8_t out[] );
-
     void initPermutation( uint8_t block[], uint8_t out[] );
 
     void inverseInitPermutation( uint8_t block[], uint8_t out[] );
-
-    void permutation_one( uint8_t key[], uint8_t out[] );
-
-    void permutation_two( uint8_t key[], uint8_t out[] );
-
-    void expand( block_t key, uint8_t out[] );
 
   public:
 
@@ -121,9 +95,13 @@ class DES {
 
     void decrypt( void );
 
-    uint8_t* cipherText( void ) { return this->ciphertext; }
+    uint8_t* cipherText( void ) {
+      return this->ciphertext;
+    }
 
-    uint8_t* plainText( void ) { return this->plaintext; }
+    uint8_t* plainText( void ) {
+      return this->plaintext;
+    }
 
     static void sttoblk( block_t blk, char* str );
 

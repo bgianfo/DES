@@ -26,8 +26,9 @@ encrypt: encrypt.cpp des.hpp des.cpp blockmode.cpp blockmode.hpp
 decrypt: decrypt.cpp des.hpp des.cpp blockmode.cpp blockmode.hpp
 	$(CXX) -o decrypt $(LFLAGS) $(CFLAGS) des.cpp decrypt.cpp blockmode.cpp
 
-tester: test.cpp des.hpp des.cpp blockmode.cpp blockmode.hpp
+tester: test.cpp des.hpp des.cpp blockmode.cpp blockmode.hpp performance.cpp
 	$(CXX) -o tester $(LFLAGS) -lgtest $(CFLAGS) -DUNITTEST blockmode.cpp des.cpp test.cpp
+	$(CXX) -o perftest $(LFLAGS) $(CFLAGS) des.cpp performance.cpp
 
 test: tester
 	./tester
@@ -36,6 +37,7 @@ clean:
 	rm -rf encrypt
 	rm -rf decrypt
 	rm -rf tester
+	rm -rf perftest
 	rm -rf decrypt.dSYM
 	rm -rf encrypt.dSYM
 	rm -rf tester.dSYM

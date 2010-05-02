@@ -2,20 +2,30 @@
 **  File: encrypt.cpp
 **
 **  Authors:
-** 
+**
 **     Sam Milton
 **     Brian Gianforcaro (bjg1955@cs.rit.edu)
 **
 */
 
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
-#include "des.hpp"
+#include <iostream>
 #include "blockmode.hpp"
 
+using namespace std;
 
 void usage( char file[] ) {
-  printf( "Usage: %s <infile> <outfile> key\n ", file );
+  cout << endl;
+  cout << "Usage: " << file << " <infile> <outfile> <key>" << endl;
+  cout << endl;
+  cout << "  <infile>  - The file you wish to encrypt" << endl;
+  cout << "  <outfile> - The resulting encrypted file" << endl;
+  cout << "  <key>     - 8 character string for your key"<< endl;
+  cout << endl;
+
+  exit(EXIT_FAILURE);
 }
 
 int main( int argc, char* argv[] ) {
@@ -24,23 +34,11 @@ int main( int argc, char* argv[] ) {
     usage( argv[0] );
   }
 
-
-    /* uint8_t msg[64] = { 0,0,0,0,0,0,0,1,0,0,1,0,0,0,1,1,0,1,0,0,0,1,0,1,
-                      0,1,1,0,0,1,1,1,1,0,0,0,1,0,0,1,1,0,1,0,1,0,1,1,
-                      1,1,0,0,1,1,0,1,1,1,1,0,1,1,1,1 };
-
-  uint8_t key[64] = { 0,0,0,1,0,0,1,1,0,0,1,1,0,1,0,0,0,1,0,1,0,1,1,1,0,1,1,1,1,0,0,1,1,0,0,1,1,0,1,1,1,0,1,1,1,1,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,1};
-  */
-
+  char* in  = argv[1];
+  char* out = argv[2];
   char* key = argv[3];
   BLOCKMODE encrypter;
-  encrypter.encrypt( argv[1], argv[2], key );
-  /*
-  for ( int i = 0; i < 1000000; i++ ) {
-    DES cipher( msg, key );
-    cipher.encrypt();
-  }
-  */
+  encrypter.encrypt( in, out, key );
 
-  return 0;
+  return EXIT_SUCCESS;
 }

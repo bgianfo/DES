@@ -29,8 +29,8 @@ using namespace std;
 **
 ** Default Constructor
 **
-** @param block, 64 bit data block made up of two 32bit int's
-** @param key, 64 bit key made up of two 32bit int's
+** @param block - 64 bit data block to encrypt.
+** @param key - 64 bit key block.
 **
 */
 
@@ -49,6 +49,7 @@ DES::DES( uint8_t* block , uint8_t* key ) {
   this->ciphertext = NULL;
   this->plaintext  = NULL;
 }
+
 
 /*
 ** Default Destructor
@@ -84,6 +85,7 @@ void DES::encrypt( void ) {
   assert( round == 0 or round >= 15 );
   this->ciphertext = new uint8_t[BKSIZE];
   this->algorithm( encrypt_a );
+  this->round = 0; /* Reset round back to one */
 }
 
 /*
@@ -102,12 +104,10 @@ void DES::decrypt( void ) {
   assert( round == 0 or round >= 15 );
   this->plaintext = new uint8_t[BKSIZE];
   this->algorithm( decrypt_a );
+  this->round = 0;
 }
 
-
-
-
-/* Init Permuatation Definition:
+/* Init Permuatationn:
   58, 50, 42, 34, 26, 18, 10, 2,
   60, 52, 44, 36, 28, 20, 12, 4,
   62, 54, 46, 38, 30, 22, 14, 6,
@@ -118,6 +118,7 @@ void DES::decrypt( void ) {
   61, 53, 45, 37, 29, 21, 13, 5,
   63, 55, 47, 39, 31, 23, 15, 7
 */
+
 void DES::initPermutation( uint8_t block[], uint8_t out[] ){
   out[0]  = block[57];  out[1]  = block[49];
   out[2]  = block[41];  out[3]  = block[33];
@@ -151,6 +152,8 @@ void DES::initPermutation( uint8_t block[], uint8_t out[] ){
   out[58] = block[46];  out[59] = block[38];
   out[60] = block[30];  out[61] = block[22];
   out[62] = block[14];  out[63] = block[6];
+
+  return;
 }
 
 
@@ -166,14 +169,8 @@ void DES::initPermutation( uint8_t block[], uint8_t out[] ){
   19, 13, 30,  6,
   22, 11,  4, 25
 */
-void DES::primative( uint8_t block[], uint8_t out[] ) {
 
-}
-
-
-/* Inverse Init Permutation Definition:
-
-*/
+/* Inverse Init Permutation Definition: */
 void DES::inverseInitPermutation( uint8_t block[], uint8_t out[] ) {
 
   out[0]   =  block[39];  out[1]   =  block[ 7];
@@ -209,13 +206,16 @@ void DES::inverseInitPermutation( uint8_t block[], uint8_t out[] ) {
   out[60]  =  block[48];  out[61]  =  block[16];
   out[62]  =  block[56];  out[63]  =  block[24];
 
+  return;
 }
 
 
 /*
+** Implements main enciphering/deciphering algorithm in Figure 1 pg: 13 of spec
 **
-** Implements the main enciphering algorithm in figure 1 pg: 13 DES spec
-**
+** @param action - Which action do we take, encryption or decryption
+**                 the algorithm is the same for both it just changes
+**                 the order in which the key's are used.
 */
 
 void DES::algorithm( const action_t action ) {
@@ -234,6 +234,7 @@ void DES::algorithm( const action_t action ) {
 
   for ( this->round = 0; this->round < ROUNDS; this->round++ ) {
 
+    /* Use the correct key for ecyrption of decryption */
     uint8_t* key;
     if ( action == encrypt_a ) {
       key = this->scheduled_keys[ this->round ];
@@ -241,16 +242,16 @@ void DES::algorithm( const action_t action ) {
       key = this->scheduled_keys[ ( ROUNDS - 1 )  - this->round ];
     }
 
-    /* store r for later */
-    uint8_t r_saved[(BKSIZE/2)];
+    /* Store r for later */
+    uint8_t r_saved[BKSIZE/2];
     memcpy( r_saved, r, BKSIZE/2 );
 
     /* Run the Fiestel function */
-    uint8_t fblck[32];
+    uint8_t fblck[BKSIZE/2];
     DES::f( fblck, r, key );
 
     /* R = L ^ f(R,K) */
-    for ( int j = 0; j < 32; j++ ) {
+    for ( int j = 0; j < BKSIZE/2; j++ ) {
       r[j] =  l[j] ^ fblck[j];
     }
 
@@ -274,11 +275,10 @@ uint8_t DES::SP[8][4][16] =
 {
   {
      /* S1 function pg: 19 of DES spec */
-      { 14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9, 0,  7},
-      {  0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5, 3,  8},
-      {  4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10, 5,  0},
-      { 15, 12,  8,  2,  4,  9,  1,  7,  5, 11,  3, 14, 10,  0, 6, 13}
-
+     { 14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9, 0,  7},
+     {  0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5, 3,  8},
+     {  4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10, 5,  0},
+     { 15, 12,  8,  2,  4,  9,  1,  7,  5, 11,  3, 14, 10,  0, 6, 13}
   },{
      /* S2 function pg: 19 of DES spec */
      {15,  1,  8, 14,  6, 11,  3,  4,  9,  7,  2, 13, 12,  0,  5, 10},
@@ -342,15 +342,15 @@ void DES::f( block_t dest, block_t R, block_t K ) {
   /* Expand left side to 48 bits to match key */
   uint8_t rpk[48];
 
-  // Expand function
-  rpk[0] = R[31] ^ K[0];   rpk[1] = R[0] ^ K[1];  
-  rpk[2] = R[1] ^ K[2];    rpk[3] = R[2] ^ K[3];  
-  rpk[4] = R[3] ^ K[4];    rpk[5] = R[4] ^ K[5];  
-  rpk[6] = R[3] ^ K[6];    rpk[7] = R[4] ^ K[7];  
-  rpk[8] = R[5] ^ K[8];    rpk[9] = R[6] ^ K[9];  
-  rpk[10] = R[7] ^ K[10];  rpk[11] = R[8] ^ K[11]; 
-  rpk[12] = R[7] ^ K[12];  rpk[13] = R[8] ^ K[13]; 
-  rpk[14] = R[9] ^ K[14];  rpk[15] = R[10] ^ K[15];
+  /* Expand function */
+  rpk[0]  = R[31] ^ K[0];  rpk[1]  = R[0]  ^ K[1];
+  rpk[2]  = R[1]  ^ K[2];  rpk[3]  = R[2]  ^ K[3];
+  rpk[4]  = R[3]  ^ K[4];  rpk[5]  = R[4]  ^ K[5];
+  rpk[6]  = R[3]  ^ K[6];  rpk[7]  = R[4]  ^ K[7];
+  rpk[8]  = R[5]  ^ K[8];  rpk[9]  = R[6]  ^ K[9];
+  rpk[10] = R[7]  ^ K[10]; rpk[11] = R[8]  ^ K[11];
+  rpk[12] = R[7]  ^ K[12]; rpk[13] = R[8]  ^ K[13];
+  rpk[14] = R[9]  ^ K[14]; rpk[15] = R[10] ^ K[15];
   rpk[16] = R[11] ^ K[16]; rpk[17] = R[12] ^ K[17];
   rpk[18] = R[11] ^ K[18]; rpk[19] = R[12] ^ K[19];
   rpk[20] = R[13] ^ K[20]; rpk[21] = R[14] ^ K[21];
@@ -366,10 +366,10 @@ void DES::f( block_t dest, block_t R, block_t K ) {
   rpk[40] = R[27] ^ K[40]; rpk[41] = R[28] ^ K[41];
   rpk[42] = R[27] ^ K[42]; rpk[43] = R[28] ^ K[43];
   rpk[44] = R[29] ^ K[44]; rpk[45] = R[30] ^ K[45];
-  rpk[46] = R[31] ^ K[46]; rpk[47] = R[0] ^ K[47];
-  // End Expand function
+  rpk[46] = R[31] ^ K[46]; rpk[47] = R[0]  ^ K[47];
+  /* End Expand function */
 
-  for( int i = 0; i < 8; ++i ){
+  for ( int i = 0; i < 8; i++ ) {
     /* Identify block of rpk (each block is 6 bits) */
     uint8_t block = i * 6;
     /* Bits 0 and 5 make index m */
@@ -384,7 +384,7 @@ void DES::f( block_t dest, block_t R, block_t K ) {
     rpk[i*4+3] = (bool)(SP[i][m][n] & 1);
   }
 
-  // Primitive Function
+  /* Primitive Function */
   dest[0]  = rpk[15];  dest[1]  = rpk[6];
   dest[2]  = rpk[19];  dest[3]  = rpk[20];
   dest[4]  = rpk[28];  dest[5]  = rpk[11];
@@ -401,7 +401,7 @@ void DES::f( block_t dest, block_t R, block_t K ) {
   dest[26] = rpk[29];  dest[27] = rpk[5];
   dest[28] = rpk[21];  dest[29] = rpk[10];
   dest[30] = rpk[3];   dest[31] = rpk[24];
-  // End Primitive Function
+  /* End Primitive Function */
 }
 
 
@@ -421,38 +421,6 @@ uint8_t DES::SHIFTS[ROUNDS] =
   14,  6, 61, 53, 45, 37, 29,
   21, 13,  5, 28, 20, 12,  4,
 */
-void DES::permutation_one( uint8_t key[], uint8_t out[] ) {
-
-   out[0]   =  key[56];   out[1]   =  key[48];
-   out[2]   =  key[40];   out[3]   =  key[32];
-   out[4]   =  key[24];   out[5]   =  key[16];
-   out[6]   =  key[ 8];   out[7]   =  key[ 0];
-   out[8]   =  key[57];   out[9]   =  key[49];
-   out[10]  =  key[41];   out[11]  =  key[33];
-   out[12]  =  key[25];   out[13]  =  key[17];
-   out[14]  =  key[ 9];   out[15]  =  key[ 1];
-   out[16]  =  key[58];   out[17]  =  key[50];
-   out[18]  =  key[42];   out[19]  =  key[34];
-   out[20]  =  key[26];   out[21]  =  key[18];
-   out[22]  =  key[10];   out[23]  =  key[ 2];
-   out[24]  =  key[59];   out[25]  =  key[51];
-   out[26]  =  key[43];   out[27]  =  key[35];
-   out[28]  =  key[62];   out[29]  =  key[54];
-   out[30]  =  key[46];   out[31]  =  key[38];
-   out[32]  =  key[30];   out[33]  =  key[22];
-   out[34]  =  key[14];   out[35]  =  key[ 6];
-   out[36]  =  key[61];   out[37]  =  key[53];
-   out[38]  =  key[45];   out[39]  =  key[37];
-   out[40]  =  key[29];   out[41]  =  key[21];
-   out[42]  =  key[13];   out[43]  =  key[ 5];
-   out[44]  =  key[60];   out[45]  =  key[52];
-   out[46]  =  key[44];   out[47]  =  key[36];
-   out[48]  =  key[28];   out[49]  =  key[20];
-   out[50]  =  key[12];   out[51]  =  key[ 4];
-   out[52]  =  key[27];   out[53]  =  key[19];
-   out[54]  =  key[11];   out[55]  =  key[ 3];
-}
-
 
 /* Permutation Two Definition
   14, 17, 11, 24,  1,  5,
@@ -465,34 +433,6 @@ void DES::permutation_one( uint8_t key[], uint8_t out[] ) {
   44, 49, 39, 56, 34, 53,
   46, 42, 50, 36, 29, 32,
 */
-void DES::permutation_two( uint8_t key[], uint8_t out[] ) {
-
-   out[0]   =  key[13];   out[1]   =  key[16];
-   out[2]   =  key[10];   out[3]   =  key[23];
-   out[4]   =  key[0];    out[5]   =  key[4]; 
-   out[6]   =  key[2];    out[7]   =  key[27];
-   out[8]   =  key[14];   out[9]   =  key[5]; 
-   out[10]  =  key[20];   out[11]  =  key[9]; 
-   out[12]  =  key[22];   out[13]  =  key[18];
-   out[14]  =  key[11];   out[15]  =  key[3]; 
-   out[16]  =  key[25];   out[17]  =  key[7]; 
-   out[18]  =  key[15];   out[19]  =  key[6]; 
-   out[20]  =  key[26];   out[21]  =  key[19];
-   out[22]  =  key[12];   out[23]  =  key[1]; 
-   out[24]  =  key[40];   out[25]  =  key[51];
-   out[26]  =  key[30];   out[27]  =  key[36];
-   out[28]  =  key[46];   out[29]  =  key[54];
-   out[30]  =  key[29];   out[31]  =  key[39];
-   out[32]  =  key[50];   out[33]  =  key[44];
-   out[34]  =  key[32];   out[35]  =  key[47];
-   out[36]  =  key[43];   out[37]  =  key[48];
-   out[38]  =  key[38];   out[39]  =  key[55];
-   out[40]  =  key[33];   out[41]  =  key[52];
-   out[42]  =  key[45];   out[43]  =  key[41];
-   out[44]  =  key[49];   out[45]  =  key[35];
-   out[46]  =  key[28];   out[47]  =  key[31];
-}
-
 
 void DES::keyschedule( void ) {
 
@@ -504,37 +444,36 @@ void DES::keyschedule( void ) {
   ** Discarding the lowest order bit of every byte.
   */
 
-
-   // Permutation One
-   C[0]   =  key[56];   C[1]   =  key[48];
-   C[2]   =  key[40];   C[3]   =  key[32];
-   C[4]   =  key[24];   C[5]   =  key[16];
-   C[6]   =  key[ 8];   C[7]   =  key[ 0];
-   C[8]   =  key[57];   C[9]   =  key[49];
-   C[10]  =  key[41];   C[11]  =  key[33];
-   C[12]  =  key[25];   C[13]  =  key[17];
-   C[14]  =  key[ 9];   C[15]  =  key[ 1];
-   C[16]  =  key[58];   C[17]  =  key[50];
-   C[18]  =  key[42];   C[19]  =  key[34];
-   C[20]  =  key[26];   C[21]  =  key[18];
-   C[22]  =  key[10];   C[23]  =  key[ 2];
-   C[24]  =  key[59];   C[25]  =  key[51];
-   C[26]  =  key[43];   C[27]  =  key[35];
-   C[28]  =  key[62];   C[29]  =  key[54];
-   C[30]  =  key[46];   C[31]  =  key[38];
-   C[32]  =  key[30];   C[33]  =  key[22];
-   C[34]  =  key[14];   C[35]  =  key[ 6];
-   C[36]  =  key[61];   C[37]  =  key[53];
-   C[38]  =  key[45];   C[39]  =  key[37];
-   C[40]  =  key[29];   C[41]  =  key[21];
-   C[42]  =  key[13];   C[43]  =  key[ 5];
-   C[44]  =  key[60];   C[45]  =  key[52];
-   C[46]  =  key[44];   C[47]  =  key[36];
-   C[48]  =  key[28];   C[49]  =  key[20];
-   C[50]  =  key[12];   C[51]  =  key[ 4];
-   C[52]  =  key[27];   C[53]  =  key[19];
-   C[54]  =  key[11];   C[55]  =  key[ 3];
-   // End Permutation One
+   /* Permutation One */
+   C[0]   =  this->key[56];   C[1]   =  this->key[48];
+   C[2]   =  this->key[40];   C[3]   =  this->key[32];
+   C[4]   =  this->key[24];   C[5]   =  this->key[16];
+   C[6]   =  this->key[ 8];   C[7]   =  this->key[ 0];
+   C[8]   =  this->key[57];   C[9]   =  this->key[49];
+   C[10]  =  this->key[41];   C[11]  =  this->key[33];
+   C[12]  =  this->key[25];   C[13]  =  this->key[17];
+   C[14]  =  this->key[ 9];   C[15]  =  this-> key[ 1];
+   C[16]  =  this->key[58];   C[17]  =  this-> key[50];
+   C[18]  =  this->key[42];   C[19]  =  this-> key[34];
+   C[20]  =  this->key[26];   C[21]  =  this-> key[18];
+   C[22]  =  this->key[10];   C[23]  =  this-> key[ 2];
+   C[24]  =  this->key[59];   C[25]  =  this-> key[51];
+   C[26]  =  this->key[43];   C[27]  =  this-> key[35];
+   C[28]  =  this->key[62];   C[29]  =  this-> key[54];
+   C[30]  =  this->key[46];   C[31]  =  this-> key[38];
+   C[32]  =  this->key[30];   C[33]  =  this-> key[22];
+   C[34]  =  this->key[14];   C[35]  =  this-> key[ 6];
+   C[36]  =  this->key[61];   C[37]  =  this-> key[53];
+   C[38]  =  this->key[45];   C[39]  =  this-> key[37];
+   C[40]  =  this->key[29];   C[41]  =  this-> key[21];
+   C[42]  =  this->key[13];   C[43]  =  this->key[ 5];
+   C[44]  =  this->key[60];   C[45]  =  this->key[52];
+   C[46]  =  this->key[44];   C[47]  =  this->key[36];
+   C[48]  =  this->key[28];   C[49]  =  this->key[20];
+   C[50]  =  this->key[12];   C[51]  =  this->key[ 4];
+   C[52]  =  this->key[27];   C[53]  =  this->key[19];
+   C[54]  =  this->key[11];   C[55]  =  this->key[ 3];
+   /* End Permutation One */
 
   /* Generate the 16 key's we will need for each round. */
   for ( int i = 0; i < ROUNDS; i++ ) {
@@ -544,7 +483,7 @@ void DES::keyschedule( void ) {
     ** n depends on the current round we are in.
     */
     int times = SHIFTS[i];
-    do{
+    do {
       uint8_t c_rot = C[0];
       uint8_t d_rot = D[0];
       C[0] = C[1];  D[0] = D[1];
@@ -575,21 +514,22 @@ void DES::keyschedule( void ) {
       C[25] = C[26];  D[25] = D[26];
       C[26] = C[27];  D[26] = D[27];
       C[27] = c_rot;  D[27] = d_rot;
-    }while( --times != 0 );
+
+    } while ( --times != 0 );
 
     /* Copy over this rounds key (Permutation Two) */
     scheduled_keys[i][0]   =  C[13];   scheduled_keys[i][1]   =  C[16];
     scheduled_keys[i][2]   =  C[10];   scheduled_keys[i][3]   =  C[23];
-    scheduled_keys[i][4]   =  C[0];    scheduled_keys[i][5]   =  C[4]; 
+    scheduled_keys[i][4]   =  C[0];    scheduled_keys[i][5]   =  C[4];
     scheduled_keys[i][6]   =  C[2];    scheduled_keys[i][7]   =  C[27];
-    scheduled_keys[i][8]   =  C[14];   scheduled_keys[i][9]   =  C[5]; 
-    scheduled_keys[i][10]  =  C[20];   scheduled_keys[i][11]  =  C[9]; 
+    scheduled_keys[i][8]   =  C[14];   scheduled_keys[i][9]   =  C[5];
+    scheduled_keys[i][10]  =  C[20];   scheduled_keys[i][11]  =  C[9];
     scheduled_keys[i][12]  =  C[22];   scheduled_keys[i][13]  =  C[18];
-    scheduled_keys[i][14]  =  C[11];   scheduled_keys[i][15]  =  C[3]; 
-    scheduled_keys[i][16]  =  C[25];   scheduled_keys[i][17]  =  C[7]; 
-    scheduled_keys[i][18]  =  C[15];   scheduled_keys[i][19]  =  C[6]; 
+    scheduled_keys[i][14]  =  C[11];   scheduled_keys[i][15]  =  C[3];
+    scheduled_keys[i][16]  =  C[25];   scheduled_keys[i][17]  =  C[7];
+    scheduled_keys[i][18]  =  C[15];   scheduled_keys[i][19]  =  C[6];
     scheduled_keys[i][20]  =  C[26];   scheduled_keys[i][21]  =  C[19];
-    scheduled_keys[i][22]  =  C[12];   scheduled_keys[i][23]  =  C[1]; 
+    scheduled_keys[i][22]  =  C[12];   scheduled_keys[i][23]  =  C[1];
     scheduled_keys[i][24]  =  C[40];   scheduled_keys[i][25]  =  C[51];
     scheduled_keys[i][26]  =  C[30];   scheduled_keys[i][27]  =  C[36];
     scheduled_keys[i][28]  =  C[46];   scheduled_keys[i][29]  =  C[54];
@@ -602,7 +542,7 @@ void DES::keyschedule( void ) {
     scheduled_keys[i][42]  =  C[45];   scheduled_keys[i][43]  =  C[41];
     scheduled_keys[i][44]  =  C[49];   scheduled_keys[i][45]  =  C[35];
     scheduled_keys[i][46]  =  C[28];   scheduled_keys[i][47]  =  C[31];
-    // End Permutation Two
+    /* End Permutation Two */
   }
 }
 
@@ -633,10 +573,12 @@ void DES::off( block_t data, const int bit ) {
 
 /*
 ** Convert a array of char to a DES block.
+** @param blk - Pointer to block of single bits, 64 bits long
+** @param str - Input string of 8 char's long
 */
 
 void DES::sttoblk( block_t blk, char* str ) {
-  for (int i = 0; i < 8; i++ ) {
+  for ( int i = 0; i < 8; i++ ) {
     int j = i*8;
     blk[j+7] = DES::get(str[i],0);
     blk[j+6] = DES::get(str[i],1);
@@ -651,14 +593,16 @@ void DES::sttoblk( block_t blk, char* str ) {
 
 /*
 ** Convert a DES block to array of char.
+** @param blk - Input block of single bits, 64 bits long
+** @param str - Pointer to string destination 8 char's long
 */
 
 void DES::blktostr( block_t blk, char* str ) {
   memset( str, 0, 8 );
-  for (int i = 0; i < 8; i++ ) {
+  for ( int i = 0; i < 8; i++ ) {
 
     int j = i*8;
-    for (int t = 0; t < 8; t++ ) {
+    for ( int t = 0; t < 8; t++ ) {
       if ( 1 == blk[j+t] ) {
         DES::on( (unsigned char*)&str[i], 7 - t );
       }
