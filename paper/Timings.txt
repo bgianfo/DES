@@ -23,21 +23,21 @@ sys	0m0.000s
 
 Optimized:
 Round1:
-real	0m5.987s
-user	0m5.984s
-sys	0m0.000s
+real	0m5.294s
+user	0m5.288s
+sys	0m0.008s
 
 Round2:
-real	0m6.021s
-user	0m6.012s
+real	0m5.321s
+user	0m5.276s
 sys	0m0.004s
 
 Round3:
-real	0m6.014s
-user	0m6.012s
+real	0m5.385s
+user	0m5.340s
 sys	0m0.000s
 
 Average:
-real	0m6.007s
-user	0m18.008s
-sys	0m0.001s
+real	0m5.333s
+user	0m5.301s
+sys	0m0.004s
