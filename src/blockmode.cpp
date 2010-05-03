@@ -40,7 +40,7 @@ BLOCKMODE::~BLOCKMODE( void ) {
 }
 
 
-void BLOCKMODE::encrypt( char file[], char outfile[], char key[] ) {
+void BLOCKMODE::encrypt( char infile[], char outfile[], char key[] ) {
 
   const size_t BUFFSIZE = 8;
   char buffer[BUFFSIZE];
@@ -52,22 +52,22 @@ void BLOCKMODE::encrypt( char file[], char outfile[], char key[] ) {
   DES::sttoblk( keyblock, key );
 
   // Files for reading / writing
-  ifstream infile;
-  infile.open( file, ios::binary | ios::in | ios::ate );
-
+  ifstream ifile;
   ofstream ofile;
-  ofile.open( outfile, ofstream::binary | ios::out );
+
+  ifile.open( infile,  ios::binary | ios::in | ios::ate );
+  ofile.open( outfile, ios::binary | ios::out );
 
 
-  int size = infile.tellg();   // Size of file
-  infile.seekg( 0, ios::beg );
+  int size = ifile.tellg();   // Size of file
+  ifile.seekg( 0, ios::beg );
   int padding = 8 - (size % 8);// Amount of padding needed
   if ( padding == 0 )
     padding = 8; // Padding cannot be 0 (pad full block)
 
   // Loop through all full blocks (8 bytes) of file
   for ( int i = 0; i < size / 8; i++ ) {
-    infile.read( buffer, 8 );
+    ifile.read( buffer, 8 );
 
     DES::sttoblk( inblock, buffer );
 
@@ -87,9 +87,9 @@ void BLOCKMODE::encrypt( char file[], char outfile[], char key[] ) {
     ofile.write( obuffer, BUFFSIZE );
   }
 
-  // Read remaing part of file
+  // Read remaining part of file
   if ( padding != 8 )
-    infile.read( buffer, 8 - padding );
+    ifile.read( buffer, 8 - padding );
 
   // Pad block with a 1 followed by 0s
   buffer[8 - padding] = 1;
@@ -111,12 +111,12 @@ void BLOCKMODE::encrypt( char file[], char outfile[], char key[] ) {
   }
 
   ofile.write( obuffer, BUFFSIZE );
-  infile.close();
+  ifile.close();
   ofile.close();
 }
 
 
-void BLOCKMODE::decrypt( char file[], char outfile[], char key[] ) {
+void BLOCKMODE::decrypt( char infile[], char outfile[], char key[] ) {
 
   const size_t BUFFSIZE = 8;
   char buffer[BUFFSIZE];
@@ -127,21 +127,21 @@ void BLOCKMODE::decrypt( char file[], char outfile[], char key[] ) {
   DES::sttoblk( keyblock, key );
 
   // Files for reading / writing
-  ifstream infile;
-  infile.open( file, ios::binary | ios::in | ios::ate );
-
+  ifstream ifile;
   ofstream ofile;
+
+  ifile.open( infile, ios::binary | ios::in | ios::ate );
   ofile.open( outfile, ofstream::binary | ios::out );
 
 
-  int size = infile.tellg(); // Size of file
+  int size = ifile.tellg(); // Size of file
   int padding = 0;           // Amount of padding on file
   uint8_t inblock[BKSIZE];   
-  infile.seekg( 0, ios::beg );
+  ifile.seekg( 0, ios::beg );
 
   // Loop through all but last block (8 bytes) of file
   for( int i = 0; i + 1 < size / 8; ++i ){
-    infile.read( buffer, 8 );
+    ifile.read( buffer, 8 );
 
     DES::sttoblk( inblock, buffer );
 
@@ -164,7 +164,7 @@ void BLOCKMODE::decrypt( char file[], char outfile[], char key[] ) {
   }
 
   // Read last line of file
-  infile.read( buffer, 8 );
+  ifile.read( buffer, 8 );
 
   DES::sttoblk( inblock, buffer );
   DES cipher( inblock, keyblock );
@@ -186,7 +186,7 @@ void BLOCKMODE::decrypt( char file[], char outfile[], char key[] ) {
   if( padding != 8 )
     ofile.write( obuffer, BUFFSIZE - padding );
 
-  infile.close();
+  ifile.close();
   ofile.close();
 
 }
