@@ -84,6 +84,7 @@ void DES::encrypt( void ) {
   assert( round == 0 or round >= 15 );
   this->ciphertext = new uint8_t[BKSIZE];
   this->algorithm( encrypt_a );
+  this->round = 0;
 }
 
 /*
@@ -102,6 +103,7 @@ void DES::decrypt( void ) {
   assert( round == 0 or round >= 15 );
   this->plaintext = new uint8_t[BKSIZE];
   this->algorithm( decrypt_a );
+  this->round = 0;
 }
 
 /* IP prime pg: 14 */
@@ -149,8 +151,8 @@ uint8_t IPP[BKSIZE] = {
 ** Mixes block into out using definitions from mix
 **
 */
-void DES::mixer( uint8_t block[], uint8_t out[], uint8_t mix[], int size ){
-  for( int i = 0; i < size; ++i ){
+void DES::mixer( uint8_t block[], uint8_t out[], uint8_t mix[], size_t size ){
+  for ( unsigned int i = 0; i < size; ++i ) {
     out[i] = block[ mix[i] - 1 ];
   }
 }
@@ -159,6 +161,8 @@ void DES::mixer( uint8_t block[], uint8_t out[], uint8_t mix[], int size ){
 /*
 **
 ** Implements the main enciphering algorithm in figure 1 pg: 13 DES spec
+**
+** @param action - should we encrypt_a or decrypt_a
 **
 */
 
@@ -218,10 +222,10 @@ uint8_t DES::SP[8][4][16] =
 {
   {
      /* S1 function pg: 19 of DES spec */
-      { 14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9, 0,  7},
-      {  0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5, 3,  8},
-      {  4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10, 5,  0},
-      { 15, 12,  8,  2,  4,  9,  1,  7,  5, 11,  3, 14, 10,  0, 6, 13}
+     { 14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9, 0,  7},
+     {  0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5, 3,  8},
+     {  4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10, 5,  0},
+     { 15, 12,  8,  2,  4,  9,  1,  7,  5, 11,  3, 14, 10,  0, 6, 13}
 
   },{
      /* S2 function pg: 19 of DES spec */
@@ -299,7 +303,7 @@ void DES::f( block_t dest, block_t R, block_t K ) {
 
   /* Expand left side to 48 bits to match key */
   uint8_t rpk[48];
-  mixer( R, rpk, E, 48 );
+  this->mixer( R, rpk, E, 48 );
   for( int i = 0; i < 48; ++i ){
     rpk[i] = rpk[i] ^ K[i];
   }
@@ -319,7 +323,7 @@ void DES::f( block_t dest, block_t R, block_t K ) {
     rpk[i*4+3] = DES::get( SP[i][m][n], 0 );
   }
 
-  mixer( rpk, dest, P, 32 );
+  this->mixer( rpk, dest, P, 32 );
 }
 
 
@@ -373,7 +377,6 @@ void DES::keyschedule( void ) {
   */
 
 
-//  this->permutation_one( this->key, C );
   this->mixer( this->key, C, PC1, 56 );
 
   /* Generate the 16 key's we will need for each round. */
@@ -398,7 +401,6 @@ void DES::keyschedule( void ) {
     }
 
     uint8_t C2[48];
-//    this->permutation_two( C, C2 );
     this->mixer( C, C2, PC2, 48 );
     /* Copy over this rounds key */
     for ( int j = 0; j < 48; j++ ) {

@@ -69,7 +69,7 @@ class DES {
     /* Decrypted plain text */
     uint8_t* plaintext;
 
-    void mixer( uint8_t block[], uint8_t out[], uint8_t mix[], int size );
+    void mixer( uint8_t block[], uint8_t out[], uint8_t mix[], size_t size );
 
     /* DES Fiestal function */
     void f( block_t dest, block_t R, block_t K );
