@@ -2,7 +2,15 @@
 
 Dependencies:
 -------------
+
 * [gtest][4] - google testing framework
+
+In Ubuntu/debain 
+
+  apt-get install libgtest-dev  
+
+
+Should do the trick.
 
 Resources:
 ----------
