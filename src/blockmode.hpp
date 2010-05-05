@@ -16,13 +16,17 @@ class BLOCKMODE {
 
   public:
 
+    /*
     BLOCKMODE( );
 
     ~BLOCKMODE( void );
+    */
 
     void encrypt( char file[], char ofile[], char key[] );
 
     void decrypt( char file[], char ofile[], char key[] );
+
+    void printbuffer( char obuffer[] );
 
 };
 

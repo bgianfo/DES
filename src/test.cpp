@@ -14,6 +14,10 @@
 #include <stdint.h>
 #include <gtest/gtest.h>
 
+#ifndef  GTEST_INCLUDE_GTEST_GTEST_H_
+ #error Google testing framework required
+#endif
+
 using ::testing::InitGoogleTest;
 
 TEST( f_function, Test ){
