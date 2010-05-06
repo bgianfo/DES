@@ -11,9 +11,8 @@ Brian Gianforcaro \and Sam Milton \\
 
 \oddsidemargin0cm
 \topmargin-2cm     %I recommend adding these three lines to increase the 
-\textwidth16.5cm   %amount of usable space on the page (and save trees)
+\textwidth18.5cm   %amount of usable space on the page (and save trees)
 \textheight23.5cm  
-
 
 \usepackage{graphicx}
 \usepackage{multicol}
@@ -25,7 +24,6 @@ Brian Gianforcaro \and Sam Milton \\
 % \usepackage{amssymb,amsmath}
 % \usepackage{cite}
 % \usepackage[T1]{fontenc}
-
 
 % \acrodef{DES}[DES]{Data Encryption Standard}
 % \acrodef{TDD}[TDD]{Test Driven Development}
@@ -63,7 +61,7 @@ Each was encrypted using the key $24681012$.
 \end{verbatim}
 \indent Encrypted:
 \begin{verbatim}
-   24 0B A5 B2 CB C1 F2 8B 
+   24 0B A5 B2 CB C1 F2 8B
 \end{verbatim}
 
 \subsection{Example 3}
@@ -75,7 +73,7 @@ Each was encrypted using the key $24681012$.
 \end{verbatim}
 \indent Encripted:
 \begin{verbatim}
-   E6 74 22 8A AC 1E 85 ED 
+   E6 74 22 8A AC 1E 85 ED
    B7 3C 26 3C 4B B4 F1 77
 \end{verbatim}
 
@@ -83,23 +81,23 @@ Each was encrypted using the key $24681012$.
 \textit{The quick brown fox jumps over the lazy dog}
 \\\indent Original:
 \begin{verbatim}
-   54 68 65 20 71 75 69 63 
-   6B 20 62 72 6F 77 6E 20 
-   66 6F 78 20 6A 75 6D 70 
-   73 20 6F 76 65 72 20 74 
-   68 65 20 6C 61 7A 79 20 
+   54 68 65 20 71 75 69 63
+   6B 20 62 72 6F 77 6E 20
+   66 6F 78 20 6A 75 6D 70
+   73 20 6F 76 65 72 20 74
+   68 65 20 6C 61 7A 79 20
    64 6F 67 0A
 \end{verbatim}
 \indent Encrypted:
 \begin{verbatim}
-   09 D1 3F 78 9D C7 66 B7 
-   46 52 A9 9F 57 92 38 65 
-   8B 40 39 1C 21 9E 77 D7 
-   9B 84 62 AF E9 22 25 1D 
-   96 61 A7 22 09 97 2C D2 
+   09 D1 3F 78 9D C7 66 B7
+   46 52 A9 9F 57 92 38 65
+   8B 40 39 1C 21 9E 77 D7
+   9B 84 62 AF E9 22 25 1D
+   96 61 A7 22 09 97 2C D2
    16 F5 D8 38 E4 FF C6 86
 \end{verbatim}
-	
+
 \section{Software Design}
 We chose to implement DES completely in $C++$ for this project.
 Both of the members our group were knowledgeable and comfortable
@@ -123,7 +121,7 @@ with the old Donal Knuth quote:
 
 During the duration of the project we attempted to work in a {TDD} model.
 All major functions and actions have associated unit-tests which we derived from various peices of
-literature on DES. These unit test's were then hooked up to run using the Google Test Framework\cite{gtest}.
+literature on DES. These unit test's were then hooked up to run using the Google Test Framework \cite{gtest}.
 
 \section{Original Runtime Measurements}
 \paragraph{}Each test consisted of 1,000,000 encryptions of the message 123456789ABCDEF and key 133457799BBCDFF1. They were performed on a 1.8 Ghz Core2Duo computer running Ubuntu 10.04.
@@ -170,8 +168,54 @@ literature on DES. These unit test's were then hooked up to run using the Google
 \\ \indent 5.958 seconds
 \section{Revised Runtime Analysis}
 \section{Developers manual}
+
+  The build environment of our software was designed to be as simple to use as possible.
+  To build just the main $encrypt$ and $decrypt$ utilties the developer must simply move to the src directory of the distribution and then issue $make$ command.
+
+{\footnotesize
+\begin{verbatim}
+$ make
+g++ -o encrypt_orig  -g3 -pg -Wall -Wextra -ansi -pedantic des_original.cpp encrypt.cpp blockmode.cpp
+g++ -o decrypt_orig  -g3 -pg -Wall -Wextra -ansi -pedantic des_original.cpp decrypt.cpp blockmode.cpp
+g++ -o encrypt_opt  -g3 -pg -Wall -Wextra -ansi -pedantic -DDESOPTIMIZED des.cpp encrypt.cpp blockmode.cpp
+g++ -o decrypt_opt  -g3 -pg -Wall -Wextra -ansi -pedantic -DDESOPTIMIZED des.cpp decrypt.cpp blockmode.cpp
+\end{verbatim}
+}
+
+  This will build 4 binaries in total, an optimized $encrypt$ and $decrypt$ as well as the original $encrypt$ and $decrypt$.
+  The distribution also comes with unit-tests and a sample program to perform performance tests with.
+  In order to build the unit tests you will need the Google Testing Frame work available from http://code.google.com/p/googletest/ or if you are
+  on a Ubuntu/Debian machine:
+
+{\footnotesize
+\begin{verbatim}
+$ sudo apt-get install libgtest-dev
+\end{verbatim}
+}
+
+You can then build the testers:
+
+{\footnotesize
+\begin{verbatim}
+$ make tester
+g++ -o tester_orig  -lgtest -g3 -pg -Wall -Wextra -ansi -pedantic -DUNITTEST blockmode.cpp des_original.cpp test.cpp
+g++ -o perftest_orig  -g3 -pg -Wall -Wextra -ansi -pedantic  -DUNITTEST des_original.cpp performance.cpp
+g++ -o tester_opt  -lgtest -g3 -pg -Wall -Wextra -ansi -pedantic -DUNITTEST -DDESOPTIMIZED blockmode.cpp des.cpp test.cpp
+g++ -o perftest_opt  -g3 -pg -Wall -Wextra -ansi -pedantic  -DUNITTEST -DDESOPTIMIZED des.cpp performance.cpp
+\end{verbatim}
+}
+
+Finally you can run the testers:
+
+{\footnotesize
+\begin{verbatim}
+$ make test
+\end{verbatim}
+}
+
 \section{Users Manual}
 
+In order to encrypt a file using out implementation the user must run the executable \textbf{encrypt\_opt}.
 \begin{verbatim}
 
   Usage: ./encrypt_opt <infile> <outfile> <key>
@@ -180,17 +224,9 @@ literature on DES. These unit test's were then hooked up to run using the Google
     <outfile> - The resulting encrypted file
     <key>     - 8 character string for your key
 
-  OR
-
-  Usage: ./encrypt_orig <infile> <outfile> <key>
-
-    <infile>  - The file you wish to encrypt
-    <outfile> - The resulting encrypted file
-    <key>     - 8 character string for your key
-
-
 \end{verbatim}
 
+The user has a similar choice for decrypting, both an optimized and original implementation exist.
 \begin{verbatim}
 
   Usage: ./decrypt_opt <infile> <outfile> <key>
@@ -198,13 +234,6 @@ literature on DES. These unit test's were then hooked up to run using the Google
     <infile>  - The file you wish to decrypt
     <outfile> - The resulting decrypted file
     <key>     - 8 character string for your key
-
-  OR
-
-  Usage: ./decrypt_orig <infile> <outfile> <key>
-
-    <infile>  - The file you wish to decrypt
-    <outfile> - The resulting decrypted file
     <key>     - 8 character string for your key
 
 \end{verbatim}
