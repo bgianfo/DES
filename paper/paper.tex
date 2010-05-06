@@ -155,7 +155,9 @@ literature on DES. These unit test's were then hooked up to run using the Google
 \indent With a total run time of 10.884 seconds, this means each encryption took only .01 milliseconds.  To find improvements, we look at our profiling.  The most time was spent in our mixer function.  To reduce this we decided to 'unravel' the loop.  To do this we would have had to make a unique method for each of the different mixing procedures.  However instead we decided to get rid of it all together by putting the unraveled contents wherever the code was called from.
 \\ \indent The next worst function was the f (feistel) function.  One of the first things we noticed could be done for improvment was to remove the first for-loop. First it mixes the input, then runs through it again doing xor with the key. We combined the two steps into the already unraveled mix procedure. Also, instead of using our get method to retrieve bit values, we copied the code into the function and hard coded the values that were needed for each use.
 \\ \indent After this we analyzed the keyschedule algorithm, as this was \#3 in terms of time spent executing.  We had already internalized the mixer function.  The innermost for loop was unraveld to remove time spent computing the the counter and comparisons.  Also, we turned the for-loop outside of it into a do-while loop.  This made modest savings since in cases where it only loops once, since there are no extra jumps.  At the end of the function was one of the unraveled mix algorithms.  We combined this with the for loop afterwards so that we weren't running through each element twice.
+
 \section{Revised Software design}
+
 \section{Revised Runtime Measurements}
 \paragraph{}Each test consisted of 1,000,000 encryptions of the message 123456789ABCDEF and key 133457799BBCDFF1. They were performed on a 1.8 Ghz Core2Duo computer running Ubuntu 10.04.
 \\Test 1:
@@ -183,7 +185,9 @@ literature on DES. These unit test's were then hooked up to run using the Google
   0.07    0.01    1,000,000   DES::encrypt()
   0.07    0.01                main
 \end{verbatim}
+
 \section{Revised Runtime Analysis}
+
 \section{Developers manual}
 
   The build environment of our software was designed to be as simple to use as possible.
@@ -210,23 +214,17 @@ $ sudo apt-get install libgtest-dev
 \end{verbatim}
 }
 
-You can then build the testers:
-
-{\footnotesize
-\begin{verbatim}
-$ make tester
-g++ -o tester_orig  -lgtest -g3 -pg -Wall -Wextra -ansi -pedantic -DUNITTEST blockmode.cpp des_original.cpp test.cpp
-g++ -o perftest_orig  -g3 -pg -Wall -Wextra -ansi -pedantic  -DUNITTEST des_original.cpp performance.cpp
-g++ -o tester_opt  -lgtest -g3 -pg -Wall -Wextra -ansi -pedantic -DUNITTEST -DDESOPTIMIZED blockmode.cpp des.cpp test.cpp
-g++ -o perftest_opt  -g3 -pg -Wall -Wextra -ansi -pedantic  -DUNITTEST -DDESOPTIMIZED des.cpp performance.cpp
-\end{verbatim}
-}
-
-Finally you can run the testers:
+You can then build the testers and run them all automatically:
 
 {\footnotesize
 \begin{verbatim}
 $ make test
+g++ -o tester_orig  -lgtest -g3 -pg -Wall -Wextra -ansi -pedantic -DUNITTEST blockmode.cpp des_original.cpp test.cpp
+g++ -o perftest_orig  -g3 -pg -Wall -Wextra -ansi -pedantic  -DUNITTEST des_original.cpp performance.cpp
+g++ -o tester_opt  -lgtest -g3 -pg -Wall -Wextra -ansi -pedantic -DUNITTEST -DDESOPTIMIZED blockmode.cpp des.cpp test.cpp
+g++ -o perftest_opt  -g3 -pg -Wall -Wextra -ansi -pedantic  -DUNITTEST -DDESOPTIMIZED des.cpp performance.cpp
+
+.... test output ...
 \end{verbatim}
 }
 
