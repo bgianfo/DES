@@ -265,7 +265,11 @@ The user has a similar choice for decrypting, both an optimized and original imp
 \end{verbatim}
 
 \section{What we learned}
+One of the very first things we learned is that in order to implement the specification, we would have to put much thought and careful interpretation into it. A big contributing factor to this is that the documentation for cryptographic specs is more complicated that what we're used to.
 
+We quickly discovered after our very first implementation, that even after trying to carefully follow the spec, it is very easy to make a mistake which messes everything up.  We spent a fair amount of time debugging our algorithm to get it right.
+
+It was also surprising to see how much performance was regained simply by unrolling loops and removing function calls. We didn't expect to see as much of an improvement from that as we got.
 \section{Future Work}
 
   In the realm of future work we believe the first thing we would like to change is the cipher block mode we chose.
