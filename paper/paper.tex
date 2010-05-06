@@ -199,13 +199,39 @@ literature on DES. These unit test's were then hooked up to run using the Google
   With this change I believe we could have a far superior implementation of DES than our current version. I am afraid that it
   would be just out of our knowledge range to be able to actually implement it. 
 
-  There also exist a few small for loops in the code which might benifit slightly from being unrolled.
+  There also exist a few small for loops in the code which might benefit slightly from being unrolled.
   We chose not to unroll them because in our profiling they didn't seem to be a problem. Also to unroll
   these left over loops would affect the readability of the code tremendously, many things would need to be 
-  restructured. However unrolling all the loops might achive a slight speed up to the overall speed of implementation.
+  restructured. However unrolling all the loops might achieve a slight speed up to the overall speed of implementation.
   The difference mostly depends on the quality of the optimizations being performed by the compiler.
 
 \section{Team Member Work}
+
+  At the start of the project we divided up th major parts of the cipher implementation for each person to do. \\
+
+
+  \textbf{Brian:}
+  \begin{itemize}
+    \item Unit test setup
+    \item Build system
+    \item Gathering of all constants and permutation blocks.
+    \item Key schedule 
+    \item Main DES algorithm
+  \end{itemize}
+
+  \textbf{Sam:}
+  \begin{itemize}
+    \item Bit operators and converters
+    \item Feistel function
+    \item Implementation API design
+    \item Mix function to handle mixing
+    \item Block mode implementation
+  \end{itemize}
+
+  Once these tasks were complete we worked together to integrate all parts together and debug our final product. Most of this
+  time was spent pair programming. The presentation and this paper were split up similarly but much of the work was done together, 
+  working cooperatively. 
+
 
 \begin{thebibliography}{99}
 
