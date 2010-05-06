@@ -132,20 +132,20 @@ literature on DES. These unit test's were then hooked up to run using the Google
 \begin{verbatim}
   % of   # of      # of                
   time  Seconds    Calls    Name    
- 40.93   18.00   51000000   DES::mixer()
- 22.88   10.06   16000000   DES::f()
- 20.17    8.87    1000000   DES::keyschedule()
-  8.20    3.60    1000000   DES::algorithm()
-  5.59    2.46  512000000   DES::get()
-  0.61    0.27   32000000   std::swap<T>()
-  0.53    0.23    1000000   std::swap_ranges<T,G>()
-  0.41    0.18   32000000   std::__iter_swap<T>::iter_swap<G,E>()
-  0.28    0.12   32000000   std::iter_swap<T,G>()
-  0.20    0.09              DES::on()
-  0.11    0.05    1000000   DES::DES()
-  0.02    0.01    1000000   DES::encrypt()
-  0.02    0.01    1000000   DES::~DES()
-  0.02    0.01              DES::main
+ 40.93   18.00   51,000,000   DES::mixer()
+ 22.88   10.06   16,000,000   DES::f()
+ 20.17    8.87    1,000,000   DES::keyschedule()
+  8.20    3.60    1,000,000   DES::algorithm()
+  5.59    2.46  512,000,000   DES::get()
+  0.61    0.27   32,000,000   std::swap<T>()
+  0.53    0.23    1,000,000   std::swap_ranges<T,G>()
+  0.41    0.18   32,000,000   std::__iter_swap<T>::iter_swap<G,E>()
+  0.28    0.12   32,000,000   std::iter_swap<T,G>()
+  0.20    0.09                DES::on()
+  0.11    0.05    1,000,000   DES::DES()
+  0.02    0.01    1,000,000   DES::encrypt()
+  0.02    0.01    1,000,000   DES::~DES()
+  0.02    0.01                DES::main
 \end{verbatim}
 \section{Original Runtime Analysis}
 \indent With a total run time of 10.884 seconds, this means each encryption took only .01 milliseconds.  To find improvements, we look at our profiling.  The most time was spent in our mixer function.  To reduce this we decided to 'unravel' the loop.  To do this we would have had to make a unique method for each of the different mixing procedures.  However instead we decided to get rid of it all together by putting the unraveled contents wherever the code was called from.
