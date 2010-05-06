@@ -10,9 +10,9 @@ Brian Gianforcaro \and Sam Milton \\
 \documentclass[10pt]{article}
 
 \oddsidemargin0cm
-\topmargin-2cm     %I recommend adding these three lines to increase the 
-\textwidth18.5cm   %amount of usable space on the page (and save trees)
-\textheight23.5cm  
+\topmargin-2cm     %I recommend adding these three lines to increase the
+\textwidth16.5cm   %amount of usable space on the page (and save trees)
+\textheight23.5cm
 
 \usepackage{graphicx}
 \usepackage{multicol}
@@ -38,7 +38,8 @@ Brian Gianforcaro \and Sam Milton \\
 \end{abstract}
 
 \newpage
-\section{The Cryptographic Primitive}
+
+\part{The Cryptographic Primitive}
 
 \section{Examples}
 Each was encrypted using the key $24681012$.
@@ -134,8 +135,8 @@ literature on DES. These unit test's were then hooked up to run using the Google
 \\\\Average:
 \\ \indent 10.879 seconds
 \begin{verbatim}
-  % of   # of      # of                
-  time  Seconds    Calls      Name    
+  % of   # of      # of
+  time  Seconds    Calls      Name
  40.93   18.00   51,000,000   DES::mixer()
  22.88   10.06   16,000,000   DES::f()
  20.17    8.87    1,000,000   DES::keyschedule()
@@ -169,8 +170,8 @@ literature on DES. These unit test's were then hooked up to run using the Google
 \\\\Average:
 \\ \indent 5.958 seconds
 \begin{verbatim}
-  % of   # of      # of                  
-  Time  Seconds    Calls      Name    
+  % of   # of      # of
+  Time  Seconds    Calls      Name
  42.90    6.10   16,000,000   DES::f()
  24.40    3.47    1,000,000   DES::keyschedule()
  24.19    3.44    1,000,000   DES::algorithm()
@@ -190,32 +191,32 @@ literature on DES. These unit test's were then hooked up to run using the Google
 
 \section{Developers manual}
 
-  The build environment of our software was designed to be as simple to use as possible.
+\indent  The build environment of our software was designed to be as simple to use as possible.
+  The only dependency to compiler our encrypt and decrypt programs is any modern C++ compiler, we recommend the GNU Compiler Collection's G++.
   To build just the main $encrypt$ and $decrypt$ utilties the developer must simply move to the src directory of the distribution and then issue $make$ command.
 
 {\footnotesize
 \begin{verbatim}
+
 $ make
 g++ -o encrypt_orig  -g3 -pg -Wall -Wextra -ansi -pedantic des_original.cpp encrypt.cpp blockmode.cpp
 g++ -o decrypt_orig  -g3 -pg -Wall -Wextra -ansi -pedantic des_original.cpp decrypt.cpp blockmode.cpp
 g++ -o encrypt_opt  -g3 -pg -Wall -Wextra -ansi -pedantic -DDESOPTIMIZED des.cpp encrypt.cpp blockmode.cpp
 g++ -o decrypt_opt  -g3 -pg -Wall -Wextra -ansi -pedantic -DDESOPTIMIZED des.cpp decrypt.cpp blockmode.cpp
+
 \end{verbatim}
 }
-
-  This will build 4 binaries in total, an optimized $encrypt$ and $decrypt$ as well as the original $encrypt$ and $decrypt$.
-  The distribution also comes with unit-tests and a sample program to perform performance tests with.
-  In order to build the unit tests you will need the Google Testing Frame work available from http://code.google.com/p/googletest/ or if you are
-  on a Ubuntu/Debian machine:
-
+\noindent  This will build 4 binaries in total, an optimized $encrypt$ and $decrypt$ as well as our original implementation $encrypt$ and $decrypt$.
+  The two set's of binaries are denoted by the "\_opt" for optimized and "\_orig" for original appended to each.
+  Our distribution also comes with unit-tests and a sample program to perform performance tests with.
+  In order to build the unit tests you will need the Google Testing Framework available from http://code.google.com/p/googletest/ or it is
+  probabably available in your package manager if you are using a unix system. For example if you are on any Ubuntu/Debian machine you should just need to run the following command:
 {\footnotesize
 \begin{verbatim}
 $ sudo apt-get install libgtest-dev
 \end{verbatim}
 }
-
-You can then build the testers and run them all automatically:
-
+\noindent You can then build the testers and run them all automatically:
 {\footnotesize
 \begin{verbatim}
 $ make test
@@ -286,7 +287,7 @@ The user has a similar choice for decrypting, both an optimized and original imp
     \item Unit test setup
     \item Build system
     \item Gathering of all constants and permutation blocks.
-    \item Key schedule 
+    \item Key schedule
     \item Main DES algorithm
   \end{itemize}
 
@@ -301,7 +302,7 @@ The user has a similar choice for decrypting, both an optimized and original imp
 
   Once these tasks were complete we worked together to integrate all parts together and debug our final product. Most of this
   time was spent pair programming. The presentation and this paper were split up similarly but much of the work was done together, 
-  working cooperatively. 
+  working cooperatively.
 
 
 \begin{thebibliography}{99}
