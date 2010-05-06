@@ -183,12 +183,43 @@ literature on DES. These unit test's were then hooked up to run using the Google
 \end{verbatim}
 
 \section{What we learned}
+
 \section{Future Work}
+
+  In the realm of future work we believe the first thing we would like to change is the cipher block mode we chose.
+  We initially chose Electronic Codebook (ECB) mode for our implementation because of the simplicity of the algorithm.
+  However for this implementation to be actually useful for legitimate security uses the program would have to be extended
+  to support alternative block modes which are not as insecure as ECB.
+
+  Another possible improvement to our implementation of DES would be to reorganize how the data input block and key block
+  are stored and used in the algorithm. Since DES has many permutations which reorganize the location of specific bits we 
+  stored the data and key blocks as array's of individual bits. It is most likely possible to keep the key and data blocks
+  organized as 8 bytes. I believe it would be possible to reduce the number of operations required total if we could bundle the 
+  bits together and then perform operations on the total bundles, much like the implementation of Skein presented in class. 
+  With this change I believe we could have a far superior implementation of DES than our current version. I am afraid that it
+  would be just out of our knowledge range to be able to actually implement it. 
+
+  There also exist a few small for loops in the code which might benifit slightly from being unrolled.
+  We chose not to unroll them because in our profiling they didn't seem to be a problem. Also to unroll
+  these left over loops would affect the readability of the code tremendously, many things would need to be 
+  restructured. However unrolling all the loops might achive a slight speed up to the overall speed of implementation.
+  The difference mostly depends on the quality of the optimizations being performed by the compiler.
+
 \section{Team Member Work}
-\section{References}
 
 \begin{thebibliography}{99}
-  \bibitem{gtest}{ \href{ http://code.google.com/p/googletest/ }{Google Unit Testing Framework}}
+
+  \bibitem{ gtest }{ \href{ http://code.google.com/p/googletest/ }{ Google Unit Testing Framework } }
+  \bibitem{ spec  }{ \href{ http://csrc.nist.gov/publications/fips/fips46-3/fips46-3.pdf }{ Data Encryption Standard Specification } }
+  \bibitem{ wiki  }{ \href{ http://en.wikipedia.org/wiki/Data_Encryption_Standard }{ Wikipedia: Data Encryption Standard } }
+  \bibitem{ block }{ \href{ http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation }{ Wikipedia: Block Cipher Modes } }
+
+  \bibitem{ desge }{ \href{ http://www.comms.scitech.sussex.ac.uk/fft/crypto/des_algorithm_details.txt}{ How to implement the Data Encryption Standard (DES) } }
+  \bibitem{ desg2 }{ \href{ http://orlingrabbe.com/des.htm }{ DES Illustrated } }
+  \bibitem{ gprof }{ \href{ http://linux.die.net/man/1/gprof }{ GProf Manual Page } }
+  \bibitem{ g++ }{ \href{ http://linux.die.net/man/1/g++ }{ GCC Manual Page } }
+
+
 \end{thebibliography}
 
 \end{document}
