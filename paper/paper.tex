@@ -166,6 +166,23 @@ literature on DES. These unit test's were then hooked up to run using the Google
 \\ \indent 5.903 seconds
 \\\\Average:
 \\ \indent 5.958 seconds
+\begin{verbatim}
+  % of   # of      # of                  
+  Time  Seconds    Calls      Name    
+ 42.90    6.10   16,000,000   DES::f()
+ 24.40    3.47    1,000,000   DES::keyschedule()
+ 24.19    3.44    1,000,000   DES::algorithm()
+  2.04    0.29    1,000,000   DES::inverseInitPermutation()
+  2.04    0.29    1,000,000   std::swap_ranges<T,T>()
+  1.30    0.18   32,000,000   std::iter_swap<T,T>()
+  1.02    0.14   32,000,000   std::__iter_swap<G>::iter_swap<T,T>()
+  0.91    0.13    1,000,000   DES::initPermutation()
+  0.70    0.10   32,000,000   std::swap<unsigned char>()
+  0.21    0.03    1,000,000   DES::~DES()
+  0.14    0.02    1,000,000   DES::DES()
+  0.07    0.01    1,000,000   DES::encrypt()
+  0.07    0.01                main
+\end{verbatim}
 \section{Revised Runtime Analysis}
 \section{Developers manual}
 
