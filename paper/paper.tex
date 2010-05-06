@@ -15,6 +15,7 @@ Brian Gianforcaro \and Sam Milton \\
 \textheight23.5cm
 
 \usepackage{graphicx}
+\usepackage{color}
 \usepackage{multicol}
 % \usepackage{acronym}
 \usepackage[bookmarks=false,colorlinks=false,linkcolor={black},pdfstartview={XYZ null null 1.22}]{hyperref}
@@ -33,50 +34,72 @@ Brian Gianforcaro \and Sam Milton \\
 
 \maketitle
 
-\begin{abstract}
-  {DES} is the 56-bit block cipher that was once used to encrypt all US Government non-classified documents.
-\end{abstract}
+%\begin{abstract}
+%  {DES} is the 56-bit block cipher that was once used to encrypt all US Government non-classified documents.
+%$\end{abstract}
 
 \newpage
 
-\part{The Cryptographic Primitive}
+\columnseprule .4pt
+
+\definecolor{light-gray}{gray}{0.95}
+
+\def \columnseprulecolor{ \color{light-gray} }
+
+\section{The Cryptographic Primitive}
+
+  {DES} is the 64-bit block cipher that was once used to encrypt all US Government non-classified documents.
+  It was developed as a collaboration between NSA and IBM in the 1970's and was eventually selected
+  by the National Institute of Standards and Technologies and was  standardised on January 15, 1977 as FIPS-46.
+  As mentioned before the cipher has a 64-bit data block and uses a 64-bit key block, it should be noted though that
+  only 56 bits of the key are ever actually used. The algorithm is based around sixteen rounds each with it's own
+  shortened subkey (48 bits) based on the original key block. At the beginning of the cipher the data bock is permuted
+  and is then inversely permuted 
+
 
 \section{Examples}
 Each was encrypted using the key $24681012$.
-\subsection{Example 1}
-\textit{Hello}
-\\\indent Original:
-\begin{verbatim}
-   48 65 6C 6C 6F 0A
-\end{verbatim}
-\indent Encrypted:
-\begin{verbatim}
-   94 93 81 0E 62 47 30 86
-\end{verbatim}
 
-\subsection{Example 2}
-\textit{World}
-\\\indent Original:
-\begin{verbatim}
-   57 6F 72 6C 64 0A
-\end{verbatim}
-\indent Encrypted:
-\begin{verbatim}
-   24 0B A5 B2 CB C1 F2 8B
-\end{verbatim}
+\begin{multicols}{3}
 
-\subsection{Example 3}
-\textit{Hello World}
-\\\indent Original:
-\begin{verbatim}
-   48 65 6C 6C 6F 20 57 6F
-   72 6C 64 0A
-\end{verbatim}
-\indent Encripted:
-\begin{verbatim}
-   E6 74 22 8A AC 1E 85 ED
-   B7 3C 26 3C 4B B4 F1 77
-\end{verbatim}
+\hbadness=10000
+
+  \subsection{Example 1}
+  \textit{Hello}
+  \\\indent Original:
+  \begin{verbatim}
+     48 65 6C 6C 6F 0A
+  \end{verbatim}
+  \indent Encrypted:
+  \begin{verbatim}
+     94 93 81 0E 62 47 30 86
+  \end{verbatim}
+
+  \subsection{Example 2}
+  \textit{World}
+  \\\indent Original:
+  \begin{verbatim}
+     57 6F 72 6C 64 0A
+  \end{verbatim}
+  \indent Encrypted:
+  \begin{verbatim}
+     24 0B A5 B2 CB C1 F2 8B
+  \end{verbatim}
+
+  \subsection{Example 3}
+  \textit{Hello World}
+  \\\indent Original:
+  \begin{verbatim}
+     48 65 6C 6C 6F 20 57 6F
+     72 6C 64 0A
+  \end{verbatim}
+  \indent Encripted:
+  \begin{verbatim}
+     E6 74 22 8A AC 1E 85 ED
+     B7 3C 26 3C 4B B4 F1 77
+  \end{verbatim}
+
+\end{multicols}
 
 \subsection{Example 4}
 \textit{The quick brown fox jumps over the lazy dog}
@@ -109,25 +132,15 @@ The keyschedule() function first uses mixer() to do permutation choice 1.  It th
 The mixer() function isn't specifically part of the DES spec. DES has many instances where bits must be reordered, we wrote one function, mixer(), which can be passed data and an array defining how to rearrange things and it will rearrange them.
 
 The last function, f(), also known as the Feistel function, is the heart of the encryption.  It first uses mixer() to do the expansion permutation, then xor's the result with the sub key. This output is split into 8-bit block and each block is sent through an S-Box. The output from the S-Boxes is then concatenated run through mixer() using the primitive permutation.
-\\ \\ \\
-We chose to implement DES completely in $C++$ for this project.
-Both of the members our group were knowledgeable and comfortable
-with $C++$ and in the $C$ world in general. We felt we would have a more
-generally usable and useful implementation if we went with $C++$ over
-another language (Java, Python, ... ). We attempted to take advantage of ac{OOP} but
-were careful not to over do it and dive into a downword spiral of subclasses and
-analysis of class cohesion. Our $DES$ implementation is simply a class, with actions of encrypting and
-decrypting. All state information is organized within the class. We then
-implemented a $BlockMode$ class which implements a block stream cipher, which is
-just a wrapper around $DES$. The user is then provided with
-two small utility functions $encrypt$ \and $decrypt$.
 
 The general ideology of this first iteration is that we want the code to be clean and correct.
 We are not putting too much thought into optimization and efficiency. We are very familiar
 with the old Donal Knuth quote:
 
 
+\begin{quote}
    "We should forget about small efficiencies, say about 97\% of the time: premature optimization is the root of all evil"
+\end{quote}
 
 
 During the duration of the project we attempted to work in a {TDD} model.
@@ -233,13 +246,13 @@ g++ -o perftest_orig  -g3 -pg -Wall -Wextra -ansi -pedantic  -DUNITTEST des_orig
 g++ -o tester_opt  -lgtest -g3 -pg -Wall -Wextra -ansi -pedantic -DUNITTEST -DDESOPTIMIZED blockmode.cpp des.cpp test.cpp
 g++ -o perftest_opt  -g3 -pg -Wall -Wextra -ansi -pedantic  -DUNITTEST -DDESOPTIMIZED des.cpp performance.cpp
 
-.... test output ...
+... test output ...
 \end{verbatim}
 }
 
 \section{Users Manual}
 
-In order to encrypt a file using out implementation the user must run the executable \textbf{encrypt\_opt}.
+\noindent In order to encrypt a file using our implementation the user must run the executable \textbf{encrypt\_opt}.
 \begin{verbatim}
 
   Usage: ./encrypt_opt <infile> <outfile> <key>
@@ -250,7 +263,7 @@ In order to encrypt a file using out implementation the user must run the execut
 
 \end{verbatim}
 
-The user has a similar choice for decrypting, both an optimized and original implementation exist.
+\noindent The user has a similar choice for decrypting, both an optimized and original implementation exist.
 \begin{verbatim}
 
   Usage: ./decrypt_opt <infile> <outfile> <key>
@@ -266,6 +279,7 @@ The user has a similar choice for decrypting, both an optimized and original imp
 One of the very first things we learned is that in order to implement the specification, we would have to put much thought and careful interpretation into it. A big contributing factor to this is that the documentation for cryptographic specs is more complicated that what we're used to.
 
 We quickly discovered after our very first implementation, that even after trying to carefully follow the spec, it is very easy to make a mistake which messes everything up.  We spent a fair amount of time debugging our algorithm to get it right.
+
 
 It was also surprising to see how much performance was regained simply by unrolling loops and removing function calls. We didn't expect to see as much of an improvement from that as we got.
 \section{Future Work}
@@ -319,7 +333,7 @@ It was also surprising to see how much performance was regained simply by unroll
 
 \begin{thebibliography}{99}
 
-  \bibitem{ gtest }{ \href{ http://code.google.com/p/googletest/ }{ Google Unit Testing Framework } }
+  \bibitem{gtest}{ \href{ http://code.google.com/p/googletest/ }{ Google Unit Testing Framework } }
   \bibitem{ spec  }{ \href{ http://csrc.nist.gov/publications/fips/fips46-3/fips46-3.pdf }{ Data Encryption Standard Specification } }
   \bibitem{ wiki  }{ \href{ http://en.wikipedia.org/wiki/Data_Encryption_Standard }{ Wikipedia: Data Encryption Standard } }
   \bibitem{ block }{ \href{ http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation }{ Wikipedia: Block Cipher Modes } }
