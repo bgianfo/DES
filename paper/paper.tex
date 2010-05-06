@@ -169,7 +169,8 @@ with the old Donal Knuth quote:
 
 
 \section{Original Runtime Measurements}
-\paragraph{}Each test consisted of 1,000,000 encryptions of the message 123456789ABCDEF and key 133457799BBCDFF1. They were performed on a 1.8 Ghz Core2Duo computer running Ubuntu 10.04.
+\paragraph{}Each test consisted of 1,000,000 encryptions of the message 12 34 56 78 9A BC DE F and key 13 34 57 79 9B BC DF F1. They were performed on a 1.8 Ghz Core2Duo computer running Ubuntu 10.04. The times were made with level 2 compiler optimiz
+ation. Our profiling data had all compiler optimization turned off.
 
 \begin{multicols}{4}
 Test 1: 10.899 sec
@@ -204,7 +205,7 @@ Average: $ 10.879 $ sec
 \\ \indent After this we analyzed the keyschedule algorithm, as this was \#3 in terms of time spent executing.  We had already internalized the mixer function.  The innermost for loop was unraveld to remove time spent computing the the counter and comparisons.  Also, we turned the for-loop outside of it into a do-while loop.  This made modest savings since in cases where it only loops once, since there are no extra jumps.  At the end of the function was one of the unraveled mix algorithms.  We combined this with the for loop afterwards so that we weren't running through each element twice.
 
 \section{Revised Runtime Measurements}
-\paragraph{}Each test consisted of 1,000,000 encryptions of the message 123456789ABCDEF and key 133457799BBCDFF1. They were performed on a 1.8 Ghz Core2Duo computer running Ubuntu 10.04.
+\paragraph{}Each test consisted of 1,000,000 encryptions of the message 12 34 56 78 9A BC DE F and key 13 34 57 79 9B BC DF F1. They were performed on a 1.8 Ghz Core2Duo computer running Ubuntu 10.04. The times were made with level 2 compiler optimization. Our profiling data had all compiler optimization turned off.
 \begin{multicols}{4}
 Test 1:  5.960 sec
 
