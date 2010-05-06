@@ -187,7 +187,7 @@ literature on DES. These unit test's were then hooked up to run using the Google
 \end{verbatim}
 
 \section{Revised Runtime Analysis}
-
+  One of the major changes was the f (feistel) function. It went from 23\% to 43\% of the total runtime.  This change is largely because we removed the mixer function. Mixer accounted for 41\% of the runtime, 63\% of mixer's calls were from feistel.  From this we can deduce that 26\% out of the 41\% was directly due to f, and we could say that f really caused 23\% + 26\% = 49\% of the runtime.  From this we can see that the f function's overall contribution to execution time went down without removing any of its duties. 
 \section{Developers manual}
 
   The build environment of our software was designed to be as simple to use as possible.
